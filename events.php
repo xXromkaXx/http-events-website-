@@ -1,0 +1,145 @@
+<?php
+require_once 'init.php';
+require_once 'helpers.php';
+header('Content-Type: application/json; charset=utf-8');
+
+$pdo = getPDO();
+
+// Отримуємо параметри фільтрів
+$category = $_GET['category'] ?? 'Усі';
+$date = $_GET['date'] ?? 'all';
+$location = trim($_GET['location'] ?? '');
+$search = trim($_GET['search'] ?? '');
+$random = isset($_GET['random']);
+
+
+
+$sql = "SELECT 
+            events.*, 
+            users.username
+        FROM events
+        LEFT JOIN users ON users.id = events.user_id
+        WHERE 1";
+$params = [];
+
+// Фільтр по категорії
+if ($category !== 'Усі') {
+    $sql .= " AND category = :category";
+    $params[':category'] = $category;
+    error_log("Додано фільтр категорії: " . $category);
+}
+
+// Фільтр по даті
+if ($date !== 'all') {
+    $today = date('Y-m-d');
+
+    switch($date) {
+        case 'today':
+            $sql .= " AND event_date = :today";
+            $params[':today'] = $today;
+            error_log("Додано фільтр дати: сьогодні (" . $today . ")");
+            break;
+        case 'tomorrow':
+            $tomorrow = date('Y-m-d', strtotime('+1 day'));
+            $sql .= " AND event_date = :tomorrow";
+            $params[':tomorrow'] = $tomorrow;
+
+            break;
+        case 'weekend':
+            // Поточні вихідні
+            $saturday = date('Y-m-d', strtotime('next saturday'));
+            $sunday = date('Y-m-d', strtotime('next sunday'));
+            $sql .= " AND (event_date = :saturday OR event_date = :sunday)";
+            $params[':saturday'] = $saturday;
+            $params[':sunday'] = $sunday;
+
+            break;
+        case 'week':
+            $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+            $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+            $sql .= " AND event_date BETWEEN :startWeek AND :endWeek";
+            $params[':startWeek'] = $startOfWeek;
+            $params[':endWeek'] = $endOfWeek;
+
+            break;
+        default:
+            // Якщо дата у форматі YYYY-MM-DD
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                $sql .= " AND event_date = :custom_date";
+                $params[':custom_date'] = $date;
+
+            }
+            break;
+    }
+}
+
+// Фільтр по місцю
+if (!empty($location)) {
+    $sql .= " AND location LIKE :location";
+    $params[':location'] = "%$location%";
+
+}
+
+// Пошук по тексту
+if (!empty($search)) {
+    $sql .= " AND (title LIKE :search OR description LIKE :search OR location LIKE :search)";
+    $params[':search'] = "%$search%";
+
+}
+
+// Сортування
+if ($random) {
+    $sql .= " ORDER BY RAND()";
+
+} else {
+    $sql .= " ORDER BY event_date ASC, event_time ASC";
+}
+
+// Обмеження кількості результатів
+$sql .= " LIMIT 50";
+
+
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+    // Форматуємо дані для фронтенду
+    foreach ($events as &$event) {
+        $event = formatEventForDisplay($event);
+    }
+
+    echo json_encode($events, JSON_UNESCAPED_UNICODE);
+
+} catch (PDOException $e) {
+    error_log("Помилка бази даних: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Помилка бази даних',
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+}
+
+/**
+ * Форматує подію для відображення на фронтенді
+ */
+function formatEventForDisplay($event) {
+    // Форматуємо дату
+    $event['formatted_date'] = formatEventDate($event['event_date']);
+
+    // Форматуємо час
+    $event['formatted_time'] = formatEventTime($event['event_time']);
+
+    // Створюємо короткий опис
+    $event['description_short'] = shortDescription($event['description']);
+
+    // Обробляємо зображення
+    if (empty($event['image'])) {
+        $event['image'] = 'assets/images/default-event.jpg';
+    }
+
+    return $event;
+}
+?>

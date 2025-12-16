@@ -1,0 +1,456 @@
+/* Стилі модальних вікон */
+
+/* === МОДАЛЬНІ ВІКНА === */
+
+/* Модальне вікно перегляду */
+.event-modal {
+
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.event-modal.show {
+    display: flex;
+}
+
+.event-modal-content {
+   background: #0b1535;
+    color: #fff;
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    border-radius: 16px;
+    padding: 18px;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.event-header img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.event-title-block h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+
+/* Мета */
+.event-modal-content p {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+    opacity: 0.9;
+}
+.close-modal {
+    position: sticky;
+    top: 0;
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+/* ✅ Верх */
+.event-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+.no-scroll {
+    overflow: hidden;
+}
+
+@keyframes fadeInScale {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+header.hidden {
+    display: none;
+}
+.modal-category {
+    background: var(--accent);
+    color: #111;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ✅ СІТКА інфи */
+.event-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 14px 0 20px;
+}
+.info-item {
+    background: #1b1b1b;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ✅ Опис */
+.event-description h4 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: var(--accent);
+}
+
+#modalDescription {
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 15px;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #fddb00;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ✅ Mobile */
+@media (max-width: 480px) {
+    .event-header {
+        flex-direction: column;
+    }
+
+    .event-header img {
+        width: 100%;
+        height: 180px;
+    }
+
+    .event-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Модальне вікно редагування */
+.edit-modal {
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #fddb00;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #fddb00;
+    outline: none;
+    box-shadow: 0 0 6px rgba(253, 219, 0, 0.5);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background-color: #45a049;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+.image-preview {
+    margin-top: 10px;
+}
+
+.image-preview img {
+    max-width: 200px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+/* Простий блок автора в правому верхньому куті */
+.author-badge {
+    position: absolute;
+    top: 33px;
+    right: 32px;
+    background: rgba(11, 21, 53, 0.9);
+    border: 1px solid rgba(253, 219, 0, 0.3);
+    border-radius: 20px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #fff;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    max-width: 250px;
+}
+
+.author-icon {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+
+
+.author-name {
+    color: #fddb00;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Адаптивність для мобільних */
+@media (max-width: 768px) {
+    .author-badge {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 10px 0;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    .author-name {
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .author-badge {
+        padding: 6px 12px;
+        font-size: 13px;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .author-name {
+        max-width: 100%;
+        white-space: normal;
+        text-align: center;
+    }
+}
+
+/* Забезпечуємо правильне позиціонування відносно header */
+.event-modal-content {
+    position: relative; /* Додаємо для правильного позиціонування .author-badge */
+}
+/* Стилі для форми створення події */
+main.create-event {
+    max-width: 700px;
+    margin: 80px auto;
+    background: linear-gradient(145deg, #0e1422, #111b2c);
+    padding: 40px 50px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(252, 219, 2, 0.15);
+}
+
+main.create-event h2 {
+    text-align: center;
+    color: #fddb00;
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+
+.event-form .form-group {
+    margin-bottom: 18px;
+}
+
+.required {
+    color: #ff4444;
+}
+
+.field-error {
+    border: 2px solid #ff4444 !important;
+    background-color: #fff8f8;
+}
+
+.error-text {
+    color: #ff4444;
+    font-size: 0.85em;
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #fff8f8;
+    border-radius: 4px;
+    border-left: 3px solid #ff4444;
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    background-color: rgba(252, 219, 2, 0.85);
+    border: none;
+    color: #111;
+    font-weight: bold;
+    font-size: 17px;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn-submit:hover {
+    background-color: rgba(255, 230, 64, 1);
+    transform: translateY(-2px);
+}
+
+#custom-category {
+    display: none;
+}
+
+select {
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+select option {
+    background-color: #131a24;
+    color: #fff;
+}
+
+select option:hover {
+    background-color: #2b3340;
+}
+
+.date-input, .time-input {
+    background: transparent;
+    color: #fff;
+    border: none;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+}
+
+.image-upload-wrapper {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.image-upload-wrapper:hover {
+    border-color: #fddb00;
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 6px rgba(253, 219, 0, 0.4);
+}
+
+.image-preview {
+    color: #ccc;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+}
+
+.time-input, .date-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.time-input:hover, .date-input:hover {
+    border-color: #fddb00;
+}
+
+.time-input:focus, .date-input:focus {
+    outline: none;
+    border-color: #fddb00;
+    box-shadow: 0 0 6px rgba(253, 219, 0, 0.4);
+}

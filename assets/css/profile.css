@@ -1,0 +1,81 @@
+/* Контейнер профілю */
+.profile-container {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 40px;
+    color: #fff;
+   
+    animation: fadeIn 0.4s ease-out;
+}
+
+
+/* Аватар */
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background: radial-gradient(circle, #ffd700, #d4c200);
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 46px;
+    font-weight: 900;
+    box-shadow: 0 0 20px rgba(247, 255, 0, 0.6);
+}
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* 🔥 КЛЮЧОВЕ */
+    object-position: center;
+    border-radius: 50%;
+}
+/* Заголовок */
+.profile-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 25px;
+    margin-bottom: 35px;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
+}
+
+/* Блоки з інформацією */
+.profile-info {
+    margin-top: 20px;
+}
+
+.info-row {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    color: #cfcfcf;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.value {
+    color: #ffd700;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/* Анімація */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
