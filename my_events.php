@@ -49,12 +49,12 @@ try {
 <?php if ($isProfile): ?>
 
 
-        <div class="profile-info">
+    <div class="profile-info">
+        <h2 class="profile-title">Мій профіль</h2>
 
-
-            <h2 class="profile-title">Мій профіль</h2>
-            <div class="profile-container">
-
+        <div class="profile-container">
+            <div class="profile-avatar-name-stats">
+                <!-- Аватарка -->
                 <div class="profile-avatar">
                     <?php if (!empty($_SESSION['user']['avatar'])): ?>
                         <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar">
@@ -62,33 +62,72 @@ try {
                         <span><?= strtoupper($_SESSION['user']['username'][0]) ?></span>
                     <?php endif; ?>
                 </div>
+                <div class="profile-name-stats">
+                    <!-- Ім'я -->
+                    <h1 class="profile-name"><?= htmlspecialchars($_SESSION['user']['username']) ?></h1>
 
-            <div class="info-row">
-                <span class="label">Ім'я</span>
-                <span class="value"><?= htmlspecialchars($_SESSION['user']['username']) ?></span>
+                    <!-- Статистика -->
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-count"><?= count($myEvents) ?></span>
+                            <span class="stat-label">Подій</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-count">0</span>
+                            <span class="stat-label">Підписники</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-count">0</span>
+                            <span class="stat-label">Підписки</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- email -->
+
+            <div class="profile-bio">
+                <?= htmlspecialchars($_SESSION['user']['email']) ?>
+                <br>
+                Зареєстровано: <?= htmlspecialchars($_SESSION['user']['created_at']) ?>
             </div>
 
-            <div class="info-row">
-                <span class="label">Email</span>
-                <span class="value"><?= htmlspecialchars($_SESSION['user']['email']) ?></span>
+            <!-- Кнопки дій -->
+            <div class="profile-actions">
+                <a href="edit_profile.php" class="btn-edit-profile">
+                    <i class="fas fa-edit"></i>
+                    Редагувати профіль
+                </a>
+                <a href="#" class="btn-secondary">
+                    <i class="fas fa-archive"></i>
+                    Переглянути архів
+                </a>
             </div>
+        </div>
 
-            <div class="info-row">
-                <span class="label">Дата реєстрації</span>
-                <span class="value"><?= htmlspecialchars($_SESSION['user']['created_at']) ?></span>
+        <!-- Таби для подій -->
+        <div class="events-section">
+            <div class="events-tabs">
+                <div class="tab-item active">
+                    <i class="fas fa-th"></i>
+                    мої події
+                </div>
+                <div class="tab-item">
+                    <i class="fas fa-bookmark"></i>
+                    Збережені
+                </div>
+                <div class="tab-item">
+                    <i class="fas fa-tag"></i>
+                    Позначені
+                </div>
             </div>
         </div>
     </div>
-    <div class="profile-actions">
-        <a href="edit_profile.php" class="btn-edit-profile">✏️ Редагувати профіль</a>
-    </div>
-
 
 
 <?php endif; ?>
 
 <main class="events-page">
-    <h2 class="events-title">Мої події</h2>
+
 
     <?php if (!empty($successMessage)): ?>
         <div class="success-message" style="max-width: 600px; margin: 20px auto; text-align: center;">

@@ -5,14 +5,14 @@ data-location="<?= htmlspecialchars($event['location'] ?? '') ?>"
 data-date="<?= htmlspecialchars($event['event_date'] ?? '') ?>"
 data-time="<?= htmlspecialchars($event['event_time'] ?? '') ?>"
 data-description="<?= htmlspecialchars($event['description'] ?? '') ?>"
-data-image="<?= htmlspecialchars($event['image'] ?? 'assets/images/default-event.jpg') ?>"
+data-image="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
 <?php if (!($hideCreator ?? false)): ?>
     data-creator="<?= htmlspecialchars($event['username']) ?>"
 <?php endif; ?>
 >
 
     <div class="event-image">
-        <img src="<?= htmlspecialchars($event['image'] ?? 'assets/images/default-event.jpg') ?>"
+        <img src="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
              alt="<?= htmlspecialchars($event['title']) ?>"
              onerror="this.src='assets/images/default-event.jpg'">
     </div>

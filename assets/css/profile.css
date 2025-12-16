@@ -1,81 +1,375 @@
-/* Контейнер профілю */
-.profile-container {
-    max-width: 600px;
-    margin: 60px auto;
-    padding: 40px;
-    color: #fff;
-   
-    animation: fadeIn 0.4s ease-out;
+/* ====== ІНСТАГРАМ-СТИЛЬ (ТЕМНА ТЕМА) ====== */
+
+.profile-info {
+    max-width: 935px;
+    margin: 40px auto 30px;
+    padding: 0 20px;
+}
+.profile-avatar-name-stats{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.profile-name-stats{
+
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+/* Заголовок профілю */
+.profile-title {
+    font-size: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
-
-/* Аватар */
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto;
-    background: radial-gradient(circle, #ffd700, #d4c200);
+/* Основна секція профілю */
+.profile-container {
     display: flex;
-    overflow: hidden;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+/* Аватар Instagram-стиль */
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 25px;
+    border: 1px solid transparent;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    background-origin: border-box;
+    background-clip: border-box;
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
-    font-size: 46px;
-    font-weight: 900;
-    box-shadow: 0 0 20px rgba(247, 255, 0, 0.6);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
 }
-.profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;     /* 🔥 КЛЮЧОВЕ */
-    object-position: center;
+
+.profile-avatar::before {
+    content: '';
+    position: absolute;
+    width: 142px;
+    height: 142px;
+    background: #000;
     border-radius: 50%;
+    z-index: 1;
 }
-/* Заголовок */
-.profile-title {
-    text-align: center;
-    font-size: 28px;
+
+.profile-avatar img {
+    width: 138px;
+    height: 138px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+    border: 2px solid #000;
+}
+
+.profile-avatar span {
+    width: 138px;
+    height: 138px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+    color: #fff;
+    font-size: 48px;
     font-weight: 700;
-    margin-top: 25px;
-    margin-bottom: 35px;
-    color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
-}
-
-/* Блоки з інформацією */
-.profile-info {
-    margin-top: 20px;
-}
-
-.info-row {
-    padding: 18px 0;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    border: 2px solid #000;
 }
 
-.label {
-    color: #cfcfcf;
+/* Інформаційна стрічка */
+.profile-stats {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 25px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-count {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.stat-label {
     font-size: 14px;
-    letter-spacing: 1px;
+    color: #aaa;
+    font-weight: 400;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.value {
-    color: #ffd700;
-    font-size: 17px;
+/* Ім'я користувача та біо */
+.profile-name {
+    margin-right: 25px;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.profile-name::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #0048ff, transparent);
+    border-radius: 2px;
+}
+.profile-bio {
+    color: #ccc;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+    max-width: 400px;
+    margin-bottom: 25px;
+}
+
+/* Секція дій */
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-edit-profile {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
     font-weight: 600;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Анімація */
+.btn-edit-profile:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+/* Секція подій (замість фото) */
+.events-section {
+    width: 100%;
+    max-width: 935px;
+    margin: 0 auto;
+}
+
+.events-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.tab-item {
+    padding: 15px 0;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-item.active {
+    color: #fff;
+}
+
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #fff;
+}
+
+.tab-item:hover {
+    color: #fff;
+}
+
+/* Анімації */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+.profile-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .profile-info {
+        padding: 0 15px;
+        margin: 30px auto 20px;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-avatar::before {
+        width: 114px;
+        height: 114px;
+    }
+
+    .profile-avatar img,
+    .profile-avatar span {
+        width: 110px;
+        height: 110px;
+    }
+
+    .profile-avatar span {
+        font-size: 36px;
+    }
+
+    .profile-stats {
+        gap: 30px;
+    }
+
+    .stat-count {
+        font-size: 18px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .profile-name {
+        font-size: 20px;
+    }
+
+    .profile-bio {
+        font-size: 14px;
+        max-width: 300px;
+    }
+
+    .events-tabs {
+        gap: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-info {
+        padding: 0 10px;
+        margin: 20px auto 15px;
+    }
+
+    .profile-container {
+        padding: 30px 0;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+    }
+
+    .profile-avatar::before {
+        width: 94px;
+        height: 94px;
+    }
+
+    .profile-avatar img,
+    .profile-avatar span {
+        width: 90px;
+        height: 90px;
+    }
+
+    .profile-avatar span {
+        font-size: 32px;
+    }
+
+    .profile-stats {
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .stat-item {
+        min-width: 80px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-edit-profile,
+    .btn-secondary {
+        width: 200px;
+        justify-content: center;
+    }
+
+    .events-tabs {
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 0 10px;
+    }
+
+    .tab-item {
+        font-size: 12px;
     }
 }
