@@ -83,6 +83,9 @@ body.auth-page {
     font-size: 16px;
     margin: 0;
 }
+.auth-form {
+    display: block !important;
+}
 
 .auth-form .form-group {
     margin-bottom: 20px;
@@ -175,10 +178,16 @@ body.auth-page {
 }
 
 .field-error-text {
-    color: #ff4444;
+
+    bottom: -22px;
+    left: 0;
+    color: #ff6b6b;
     font-size: 12px;
-    margin-top: 5px;
-    display: block;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: errorShake 0.4s ease;
 }
 
 .required {

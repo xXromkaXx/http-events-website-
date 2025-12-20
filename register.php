@@ -225,8 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
     <?php endif; ?>
     <?php if ($showCodeForm): ?>
-        <form method="POST" class="auth-form">
-            <h3>Введіть код з email</h3>
+        <form method="POST" class="auth-form no-validate">
+
+        <h3>Введіть код з email</h3>
 
             <input type="text"
                    name="verify_code"

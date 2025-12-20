@@ -14,12 +14,15 @@ class AuthManager {
         const forms = document.querySelectorAll('.auth-form');
 
         forms.forEach(form => {
+            if (form.classList.contains('no-validate')) return;
+
             form.addEventListener('submit', (e) => {
                 if (!this.validateForm(form)) {
                     e.preventDefault();
                 }
             });
         });
+
     }
 
     validateForm(form) {
@@ -90,7 +93,11 @@ class AuthManager {
         const errorDiv = document.createElement('div');
         errorDiv.className = 'field-error-text';
         errorDiv.textContent = message;
-        field.parentElement.appendChild(errorDiv);
+        const group = field.closest('.form-group');
+        if (!group) return;
+
+        group.appendChild(errorDiv);
+
     }
 
     setupPhoneMask() {
