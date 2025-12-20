@@ -325,7 +325,7 @@ class UniversalModalManager {
         const categoryElement = card.querySelector('.event-category');
         const locationElement = card.querySelector('.event-location');
         const dateElement = card.querySelector('.event-date');
-        const descriptionElement = card.querySelector('.event-description');
+        const descriptionElement = card.querySelector('.event-details-description');
         const imageElement = card.querySelector('.event-image img');
 
         if (titleElement) titleElement.textContent = updatedEvent.title;

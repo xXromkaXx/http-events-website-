@@ -32,6 +32,7 @@ try {
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/modal.css">
+    <link rel="stylesheet" href="assets/css/edit-modal.css">
     <link rel="stylesheet" href="assets/css/profile.css">
 
 </head>
