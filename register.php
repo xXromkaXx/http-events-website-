@@ -2,75 +2,128 @@
 session_start();
 require_once 'init.php';
 require_once 'functions/auth.php';
+require_once __DIR__ . '/functions/mail.php';
 
 $errors = [];
 $old = [];
 
+$showRegisterForm = true;
+$showCodeForm = false;
+
+$avatarPath = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm = $_POST['confirm'] ?? '';
 
-    $old = compact('name', 'email', 'phone');
+    /* =========================
+       ПІДТВЕРДЖЕННЯ КОДУ
+    ========================= */
+    if (isset($_POST['verify_code'], $_SESSION['register_data'])) {
 
+        $data = $_SESSION['register_data'];
 
+        if ($data['expires'] < time()) {
+            $errors['general'] = 'Код прострочений';
+        } elseif ($_POST['verify_code'] != $data['code']) {
+            $errors['general'] = 'Невірний код';
+        } else {
 
-    if (empty($name)) {
-        $errors['name'] = "Введіть ваше ім'я";
-    } elseif (strlen($name) < 2) {
-        $errors['name'] = "Ім'я повинно містити щонайменше 2 символи";
-    }
+            $userId = registerUser(
+                $data['name'],
+                $data['email'],
+                $data['phone'],
+                $data['password'],
+                $data['avatar']
+            );
 
-    if (empty($email)) {
-        $errors['email'] = "Введіть email";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = "Введіть коректний email";
-    } elseif (getUserByEmail($email)) {
-        $errors['email'] = "Користувач з таким email вже існує";
-    }
+            $_SESSION['user'] = getUserByEmail($data['email']);
+            unset($_SESSION['register_data']);
 
-    if (empty($phone)) {
-        $errors['phone'] = "Введіть номер телефону";
-    } elseif (!preg_match('/^[\d\s\-\+\(\)]{10,20}$/', $phone)) {
-        $errors['phone'] = "Введіть коректний номер телефону";
-    }
-
-    if (empty($password)) {
-        $errors['password'] = "Введіть пароль";
-    } elseif (strlen($password) < 6) {
-        $errors['password'] = "Пароль повинен містити щонайменше 6 символів";
-    }
-
-    if (empty($confirm)) {
-        $errors['confirm'] = "Підтвердіть пароль";
-    } elseif ($password !== $confirm) {
-        $errors['confirm'] = "Паролі не співпадають";
-    }
-
-    $avatarPath = null;
-
-
-
-    $username = $old['name'] ?? '';
-
-
-
-    if (empty($errors)) {
-        if (registerUser($name, $email, $phone, $password, $avatarPath)) {
-
-            $_SESSION['user'] = getUserByEmail($email);
-            $_SESSION['success'] = "Реєстрація успішна! Ласкаво просимо!";
             header('Location: index.php');
             exit;
-        } else {
-            $errors['general'] = "Сталася помилка при реєстрації. Спробуйте ще раз.";
+        }
+
+        $showRegisterForm = false;
+        $showCodeForm = true;
+    }
+
+    /* =========================
+       ПЕРШИЙ КЛІК — РЕЄСТРАЦІЯ
+    ========================= */
+    if (!isset($_POST['verify_code'])) {
+
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm = $_POST['confirm'] ?? '';
+
+        $old = compact('name', 'email', 'phone');
+
+        if (empty($name)) {
+            $errors['name'] = "Введіть ім'я";
+        } elseif (strlen($name) < 2) {
+            $errors['name'] = "Мінімум 2 символи";
+        }
+
+        if (empty($email)) {
+            $errors['email'] = "Введіть email";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = "Некоректний email";
+        } elseif (getUserByEmail($email)) {
+            $errors['email'] = "Email вже зайнятий";
+        }
+
+        if (empty($phone)) {
+            $errors['phone'] = "Введіть телефон";
+        }
+
+        if (empty($password)) {
+            $errors['password'] = "Введіть пароль";
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = "Мінімум 6 символів";
+        }
+
+        if ($password !== $confirm) {
+            $errors['confirm'] = "Паролі не співпадають";
+        }
+
+        if (!empty($_POST['cropped_avatar']) &&
+                preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $_POST['cropped_avatar'])) {
+
+            $dataImg = explode(',', $_POST['cropped_avatar'])[1];
+
+            $dir = 'uploads/tmp/';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $avatarPath = $dir . uniqid('reg_avatar_') . '.jpg';
+            file_put_contents($avatarPath, base64_decode($dataImg));
+        }
+
+        if (empty($errors)) {
+
+            $code = random_int(100000, 999999);
+
+            $_SESSION['register_data'] = [
+                    'name'     => $name,
+                    'email'    => $email,
+                    'phone'    => $phone,
+                    'password' => password_hash($password, PASSWORD_DEFAULT),
+                    'avatar'   => $avatarPath,
+                    'code'     => $code,
+                    'expires'  => time() + 900
+            ];
+
+
+            sendMail($email, 'Код підтвердження', "Ваш код: $code");
+
+            $showRegisterForm = false;
+            $showCodeForm = true;
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -78,6 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Реєстрація | Events YC</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/auth.css">
+
+    <link rel="stylesheet" href="assets/css/avatar_cropper.css">
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css">
 
 </head>
 <body class="auth-page">
@@ -94,11 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <?php if (!empty($errors['general'])): ?>
+
         <div class="auth-error-message">
             ❌ <?= htmlspecialchars($errors['general']) ?>
         </div>
     <?php endif; ?>
-
+    <?php if ($showRegisterForm): ?>
     <form action="register.php" method="POST" class="auth-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="name">Ім'я <span class="required">*</span></label>
@@ -121,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="field-error-text"><?= htmlspecialchars($errors['email']) ?></div>
             <?php endif; ?>
         </div>
+
 
         <div class="form-group">
             <label for="phone">Телефон <span class="required">*</span></label>
@@ -153,22 +211,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
         <div class="form-group">
-            <label for="avatar">Аватарка</label>
+
+            <input type="hidden" name="action" value="profile">
             <?php
-            $currentAvatar = $user['avatar'];
-            $username = $user['username'];
+
             include 'components/avatar_cropper.php';
             ?>
+            <input type="hidden" name="cropped_avatar" id="croppedAvatar">
 
         </div>
 
         <button type="submit" class="auth-btn">Зареєструватися</button>
     </form>
+    <?php endif; ?>
+    <?php if ($showCodeForm): ?>
+        <form method="POST" class="auth-form">
+            <h3>Введіть код з email</h3>
+
+            <input type="text"
+                   name="verify_code"
+                   maxlength="6"
+                   required
+                   placeholder="123456">
+
+            <button class="auth-btn">Підтвердити</button>
+        </form>
+    <?php endif; ?>
 
     <div class="auth-link">
         Вже маєте акаунт? <a href="login.php">Увійти</a>
     </div>
 </div>
+<!-- Модалка кропу -->
+<div class="avatar-cropper-wrapper" id="avatarCropper">
+    <div class="avatar-cropper-box">
+        <img id="cropperImage">
+
+        <div class="cropper-actions">
+            <button type="button" id="cropCancel">Скасувати</button>
+            <button type="button" id="cropSave">Зберегти</button>
+        </div>
+    </div>
+</div>
 <script src="assets/js/auth.js"></script>
+<script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
+<script src="assets/js/avatar_cropper_register.js" defer></script>
+
 </body>
 </html>
