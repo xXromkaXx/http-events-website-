@@ -142,8 +142,6 @@ class UniversalModalManager {
             ? card.dataset.avatar
             : 'assets/img/default-avatar.png';
 
-
-
         if (creator) {
             authorName.textContent = creator;
             authorAvatar.src = avatar;
@@ -185,7 +183,6 @@ class UniversalModalManager {
                     authorBadge.style.display = 'none';
                 }
             }
-
             modal.classList.add('show');
             document.querySelector('header')?.classList.add('hidden');
             document.body.classList.add('no-scroll');

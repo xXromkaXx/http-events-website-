@@ -310,7 +310,7 @@ class EventsManager {
         card.setAttribute('data-avatar', event.avatar || 'assets/img/default-avatar.png');
 
         const description = event.description_short ||
-            (event.description ? event.description.substring(0, 100) + '...' : 'Опис відсутній');
+            (event.description ? event.description.substring(0, 120) + '...' : 'Опис відсутній');
 
         card.innerHTML = `
             <div class="event-image">

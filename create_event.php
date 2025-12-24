@@ -116,7 +116,8 @@ $formData = $_SESSION['form_data'] ?? $_POST;
     <meta charset="UTF-8">
     <title>Створити подію | Events YC</title>
     <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/modal.css">
+    <link rel="stylesheet" href="assets/css/create_event.css">
+    <link rel="stylesheet" href="assets/css/events.css">
 </head>
 <body>
 
@@ -130,108 +131,83 @@ $formData = $_SESSION['form_data'] ?? $_POST;
     <div class="zigzag-line zigzag-5"></div>
 </div>
 
-<main class="create-event">
-    <h2>Створити нову подію</h2>
+<div class="create-event-layout">
 
-    <?php if (!empty($successMessage)): ?>
-        <div class="success-message"><?= htmlspecialchars($successMessage) ?></div>
-    <?php endif; ?>
+    <!-- 🔴 ЛІВЕ ПРЕВʼЮ (як реальна картка події) -->
+    <div class="event-preview">
 
-    <?php if (!empty($errorMessage) && array_filter($fieldErrors)): ?>
-        <div class="error-message">
-            <strong><?= htmlspecialchars($errorMessage) ?></strong>
-        </div>
-    <?php endif; ?>
+        <div class="event-card preview-card">
 
-    <form method="POST" enctype="multipart/form-data" class="event-form" id="eventForm">
-        <div class="form-group">
-            <label>Назва події: <span class="required">*</span></label>
-            <input type="text" name="title" placeholder="Наприклад: Вечір футболу"
-                   value="<?= htmlspecialchars($formData['title'] ?? '') ?>"
-                   class="<?= !empty($fieldErrors['title']) ? 'field-error' : '' ?>">
-            <?php if (!empty($fieldErrors['title'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['title']) ?></div>
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group">
-            <label>Категорія: <span class="required">*</span></label>
-            <select name="category" id="categorySelect" class="<?= !empty($fieldErrors['category']) ? 'field-error' : '' ?>">
-                <option value="">-- Оберіть категорію --</option>
-                <option value="Футбол" <?= (($formData['category'] ?? '') === 'Футбол') ? 'selected' : '' ?>>⚽ Футбол</option>
-                <option value="Концерт" <?= (($formData['category'] ?? '') === 'Концерт') ? 'selected' : '' ?>>🎵 Концерт</option>
-                <option value="Зустріч" <?= (($formData['category'] ?? '') === 'Зустріч') ? 'selected' : '' ?>>🤝 Зустріч</option>
-                <option value="Навчання" <?= (($formData['category'] ?? '') === 'Навчання') ? 'selected' : '' ?>>📘 Навчання</option>
-                <option value="Прогулянка" <?= (($formData['category'] ?? '') === 'Прогулянка') ? 'selected' : '' ?>>🚶 Прогулянка</option>
-                <option value="Вечірка" <?= (($formData['category'] ?? '') === 'Вечірка') ? 'selected' : '' ?>>🎉 Вечірка</option>
-                <option value="Інше" <?= (($formData['category'] ?? '') === 'Інше') ? 'selected' : '' ?>>✏️ Інше (ввести вручну)</option>
-            </select>
-            <?php if (!empty($fieldErrors['category'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['category']) ?></div>
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group" id="custom-category" style="display: <?= (($formData['category'] ?? '') === 'Інше') ? 'block' : 'none' ?>;">
-            <label>Власна категорія:</label>
-            <input type="text" name="custom_category"
-                   value="<?= htmlspecialchars($formData['custom_category'] ?? '') ?>"
-                   placeholder="Введіть вашу категорію">
-        </div>
-
-        <div class="form-group">
-            <label>Місце проведення: <span class="required">*</span></label>
-            <input type="text" name="location" placeholder="Наприклад: Київ, вул. Хрещатик 12"
-                   value="<?= htmlspecialchars($formData['location'] ?? '') ?>"
-                   class="<?= !empty($fieldErrors['location']) ? 'field-error' : '' ?>">
-            <?php if (!empty($fieldErrors['location'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['location']) ?></div>
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group">
-            <label>Дата події: <span class="required">*</span></label>
-            <input type="date" name="event_date" id="eventDate"
-                   class="date-input <?= !empty($fieldErrors['event_date']) ? 'field-error' : '' ?>"
-                   value="<?= htmlspecialchars($formData['event_date'] ?? '') ?>">
-            <?php if (!empty($fieldErrors['event_date'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['event_date']) ?></div>
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group">
-            <label>Час події (необов'язково):</label>
-            <input type="time" name="event_time" id="eventTime" class="time-input"
-                   value="<?= htmlspecialchars($formData['event_time'] ?? '') ?>">
-        </div>
-
-        <div class="form-group">
-            <label>Опис події: <span class="required">*</span></label>
-            <textarea name="description" class="<?= !empty($fieldErrors['description']) ? 'field-error' : '' ?>"
-                      placeholder="Деталі про подію..."><?= htmlspecialchars($formData['description'] ?? '') ?></textarea>
-            <?php if (!empty($fieldErrors['description'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['description']) ?></div>
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group">
-            <label>Головне зображення (необов'язково):</label>
-            <div class="image-upload-wrapper" onclick="document.getElementById('eventImage').click()">
-                <input type="file" id="eventImage" name="image" accept="image/*" style="display: none;">
-                <div class="image-preview" id="imagePreview">
-                    <span>📸 Натисніть, щоб додати фото</span>
-                </div>
+            <div class="event-image" id="previewImage">
+                <span class="preview-placeholder">📸 Фото події</span>
             </div>
-            <?php if (!empty($fieldErrors['image'])): ?>
-                <div class="error-text"><?= htmlspecialchars($fieldErrors['image']) ?></div>
-            <?php endif; ?>
+
+            <div class="event-info">
+
+                <h3 id="previewTitle">Назва події</h3>
+
+                <p class="event-category" id="previewCategory">
+                    Категорія
+                </p>
+
+                <p class="event-location" id="previewLocation">
+                    📍 Локація
+                </p>
+
+                <p class="event-date" id="previewDate">
+                    📅 Дата
+                </p>
+
+                <p class="event-description" id="previewDescription">
+                    Короткий опис події буде тут
+                </p>
+
+            </div>
+
         </div>
 
-        <button type="submit" class="btn-submit">✅ Створити подію</button>
+    </div>
+
+
+
+    <!-- 🟢 ПРАВА ЧАСТИНА — ФОРМА -->
+    <form class="create-event-form">
+
+        <input type="text" id="eventTitle" placeholder="Назва події">
+
+        <select id="categorySelect">
+            <option value="">Категорія</option>
+            <option value="Футбол">Футбол</option>
+            <option value="Волейбол">Волейбол</option>
+            <option value="Прогулянка">Прогулянка</option>
+            <option value="Концерт">Концерт</option>
+            <option value="Вечірка">Вечірка</option>
+            <option value="Зустріч">Зустріч</option>
+            <option value="Інше">Інше</option>
+        </select>
+
+        <input type="text" id="eventLocation" placeholder="Локація">
+
+        <input type="date" id="eventDate">
+
+        <textarea
+                id="eventDescription"
+                placeholder="Опис події"
+                maxlength="500">
+</textarea>
+
+        <input type="file" id="eventImage" hidden>
+        <label for="eventImage" class="upload-btn">Додати фото</label>
+
+        <button type="submit">Створити подію</button>
     </form>
-</main>
+
+</div>
+
 
 <?php include 'includes/footer.php'; ?>
 
 <script src="assets/js/create_event.js"></script>
+
 </body>
 </html>
