@@ -1,0 +1,47 @@
+<?php
+require_once __DIR__ . '/../init.php';
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user']['id'])) {
+    echo json_encode(['success' => false, 'message' => 'Не авторизований']);
+    exit;
+}
+
+$eventId = (int)($_POST['event_id'] ?? 0);
+$userId  = (int)$_SESSION['user']['id'];
+
+/* перевірка */
+$stmt = $pdo->prepare("
+    SELECT id FROM event_likes
+    WHERE event_id = ? AND user_id = ?
+");
+$stmt->execute([$eventId, $userId]);
+$likeId = $stmt->fetchColumn();
+
+if ($likeId) {
+    /* прибрати лайк */
+    $stmt = $pdo->prepare("DELETE FROM event_likes WHERE id = ?");
+    $stmt->execute([$likeId]);
+    $liked = false;
+} else {
+    /* додати лайк */
+    $stmt = $pdo->prepare("
+        INSERT INTO event_likes (event_id, user_id)
+        VALUES (?, ?)
+    ");
+    $stmt->execute([$eventId, $userId]);
+    $liked = true;
+}
+
+/* нова кількість */
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM event_likes WHERE event_id = ?
+");
+$stmt->execute([$eventId]);
+$count = (int)$stmt->fetchColumn();
+
+echo json_encode([
+    'success' => true,
+    'liked'   => $liked,
+    'count'   => $count
+]);

@@ -8,7 +8,7 @@ class UniversalModalManager {
         this.setupViewModal();
         this.setupEditModal();
         this.setupEventListeners();
-        console.log('UniversalModalManager ініціалізовано');
+        this.setupCommentSend();
     }
 
     setupEventListeners() {
@@ -24,6 +24,7 @@ class UniversalModalManager {
                     this.openViewModal(eventId);
                 }
                 e.preventDefault();
+                e.stopPropagation();
             }
 
             // Кнопка "Редагувати" - тільки на my_events.php
@@ -63,6 +64,8 @@ class UniversalModalManager {
             console.warn('Модальне вікно перегляду не знайдено');
             return;
         }
+        const modalContent = modal.querySelector('.event-modal-content');
+        modalContent.addEventListener('click', e => e.stopPropagation());
 
         const closeBtn = modal.querySelector('.close-modal');
         if (closeBtn) {
@@ -71,6 +74,7 @@ class UniversalModalManager {
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
+                e.stopPropagation();
                 this.closeViewModal();
             }
         });
@@ -95,6 +99,7 @@ class UniversalModalManager {
             editModal.addEventListener('click', (e) => {
                 if (e.target === editModal) {
                     this.closeEditModal();
+                    e.stopPropagation();
                 }
             });
         }
@@ -107,6 +112,8 @@ class UniversalModalManager {
     }
 
     openViewModal(eventId) {
+        this.currentEventId = eventId;
+
         // Шукаємо картку події
         const card = document.querySelector(`.event-card[data-id="${eventId}"]`);
         if (!card) {
@@ -122,12 +129,32 @@ class UniversalModalManager {
         const modalDate = document.querySelector('.modal-date');
         const modalDescription = document.getElementById('modalDescription');
         const modalTime = document.querySelector('.modal-time');
+
         const authorBadge = document.getElementById('authorBadge');
         const modalAuthorName = document.getElementById('modalAuthorName');
 
+        const authorBlock = document.getElementById('eventAuthor');
+        const authorName  = document.getElementById('modalAuthorName');
+        const authorAvatar = document.getElementById('authorAvatar');
+
+        const creator = card.dataset.creator;
+        const avatar = card.hasAttribute('data-avatar')
+            ? card.dataset.avatar
+            : 'assets/img/default-avatar.png';
+
+
+
+        if (creator) {
+            authorName.textContent = creator;
+            authorAvatar.src = avatar;
+            authorBlock.style.display = 'flex';
+        } else {
+            authorBlock.style.display = 'none';
+        }
+
         if (modal && modalImage && modalTitle) {
             // Отримуємо дані з картки
-            const imageUrl = card.dataset.image || 'assets/images/default-event.jpg';
+            const imageUrl = card.dataset.image || 'assets/img/default-event.jpg';
             const title = card.dataset.title || 'Без назви';
             const category = card.dataset.category || 'Без категорії';
             const location = card.dataset.location || 'Без локації';
@@ -140,6 +167,8 @@ class UniversalModalManager {
             modalImage.src = imageUrl;
             modalImage.alt = title;
             modalTitle.textContent = title;
+
+           
 
             if (modalCategory) modalCategory.textContent = "Категорія: " + category;
             if (modalLocation) modalLocation.textContent = "📍 " + location;
@@ -160,6 +189,11 @@ class UniversalModalManager {
             modal.classList.add('show');
             document.querySelector('header')?.classList.add('hidden');
             document.body.classList.add('no-scroll');
+
+            this.loadComments(eventId);
+            this.loadStats(eventId);
+            this.setupLike(eventId);
+
         }
     }
 
@@ -193,7 +227,7 @@ class UniversalModalManager {
         // Показуємо поточне зображення
         const imagePreview = document.getElementById('currentImagePreview');
         if (imagePreview) {
-            const imageUrl = card.dataset.image || 'assets/images/default-event.jpg';
+            const imageUrl = card.dataset.image || 'assets/img/default-event.jpg';
             imagePreview.innerHTML = `
                 <p>Поточне зображення:</p>
                 <img src="${imageUrl}" alt="Поточне зображення" style="max-width: 200px; margin-top: 10px; border-radius: 8px;">
@@ -212,6 +246,9 @@ class UniversalModalManager {
             editModal.classList.add('show');
             document.body.classList.add('no-scroll');
         }
+
+
+
     }
 
     closeEditModal() {
@@ -452,6 +489,105 @@ class UniversalModalManager {
             alert(message);
         }
     }
+    async loadComments(eventId) {
+        const modal = document.getElementById('eventModal');
+        const list = modal.querySelector('.comments-list');
+        const countEl = modal.querySelector('#commentsCount');
+        if (!list) return;
+
+        list.innerHTML = 'Завантаження...';
+
+        const res = await fetch(`functions/get_comments.php?event_id=${eventId}`);
+        const comments = await res.json();
+
+        countEl.textContent = comments.length;
+
+        if (!comments.length) {
+            list.innerHTML = '<p>Коментарів ще немає</p>';
+            return;
+        }
+
+        list.innerHTML = comments.map(c => `
+    <div class="comment">
+        <div class="comment-header">
+            <span class="comment-author">${c.username}</span>
+            <span class="comment-time">${c.created_at}</span>
+        </div>
+        <p>${c.content}</p>
+    </div>
+`).join('');
+
+
+    }
+
+
+    async loadStats(eventId) {
+        const res = await fetch(`./functions/get_event_stats.php?event_id=${eventId}`);
+        const data = await res.json();
+
+        document.getElementById('likesCount').textContent = data.likes_count ?? 0;
+        document.getElementById('commentsCount').textContent = data.comments_count ?? 0;
+
+        const likeBtn = document.getElementById('likeBtn');
+        likeBtn.classList.toggle('liked', data.is_liked);
+        likeBtn.querySelector('.heart').textContent = data.is_liked ? '❤️' : '🤍';
+
+    }
+
+    setupCommentSend() {
+        const btn = document.getElementById('sendComment');
+
+        if (!btn) return;
+
+        btn.addEventListener('click', async () => {
+            const input = document.getElementById('commentText');
+            const text = input.value.trim();
+
+            if (!text || !this.currentEventId) return;
+
+            const res = await fetch('functions/add_comment.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `event_id=${this.currentEventId}&content=${encodeURIComponent(text)}`
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                alert(data.message || 'Помилка додавання коментаря');
+                return;
+            }
+
+
+            input.value = '';
+            this.loadComments(this.currentEventId);
+            this.loadStats(this.currentEventId);
+        });
+    }
+
+    async setupLike(eventId) {
+        const btn = document.getElementById('likeBtn');
+        if (!btn) return;
+
+        btn.onclick = async () => {
+            const res = await fetch('functions/toggle_like.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `event_id=${eventId}`
+            });
+
+            const data = await res.json();
+            if (!data.success) {
+                alert(data.message);
+                return;
+            }
+
+            document.getElementById('likesCount').textContent = data.count;
+            btn.classList.toggle('liked', data.liked);
+            btn.querySelector('.heart').textContent = data.liked ? '❤️' : '🤍';
+        };
+    }
+
 }
 
 // Ініціалізація універсального менеджера

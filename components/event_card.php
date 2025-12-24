@@ -1,20 +1,23 @@
-<div class="event-card" data-id="<?= $event['id'] ?>"
-data-title="<?= htmlspecialchars($event['title']) ?>"
-data-category="<?= htmlspecialchars($event['category'] ?? '') ?>"
-data-location="<?= htmlspecialchars($event['location'] ?? '') ?>"
-data-date="<?= htmlspecialchars($event['event_date'] ?? '') ?>"
-data-time="<?= htmlspecialchars($event['event_time'] ?? '') ?>"
-data-description="<?= htmlspecialchars($event['description'] ?? '') ?>"
-data-image="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
-<?php if (!($hideCreator ?? false)): ?>
-    data-creator="<?= htmlspecialchars($event['username']) ?>"
-<?php endif; ?>
+<div class="event-card"
+     data-id="<?= $event['id'] ?>"
+     data-title="<?= htmlspecialchars($event['title']) ?>"
+     data-category="<?= htmlspecialchars($event['category'] ?? '') ?>"
+     data-location="<?= htmlspecialchars($event['location'] ?? '') ?>"
+     data-date="<?= htmlspecialchars($event['event_date'] ?? '') ?>"
+     data-time="<?= htmlspecialchars($event['event_time'] ?? '') ?>"
+     data-description="<?= htmlspecialchars($event['description'] ?? '') ?>"
+     data-image="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
+        <?php if (!($hideCreator ?? false)): ?>
+            data-creator="<?= htmlspecialchars($event['username']) ?>"
+            data-avatar="<?= htmlspecialchars($event['avatar'] ?? 'assets/img/default-avatar.png') ?>"
+        <?php endif; ?>
 >
 
-    <div class="event-image">
-        <img src="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
+
+<div class="event-image">
+    <img src="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
              alt="<?= htmlspecialchars($event['title']) ?>"
-             onerror="this.src='assets/images/default-event.jpg'">
+             onerror="this.src='assets/img/default-event.jpg'">
     </div>
 
     <div class="event-content">

@@ -22,7 +22,7 @@
                     <div class="info-item modal-date"></div>
                     <div class="info-item modal-time"></div>
                 </div>
-                <div class=".event-details-description">
+                <div class="event-details-description">
                     <h4>Про подію</h4>
                     <div id="modalDescription"></div>
                 </div>
@@ -33,35 +33,34 @@
             <div class="event-right">
 
                 <!-- автор (JS вже працює з ним) -->
-                <div class="author-badge" id="authorBadge" style="display:none;">
-                    <span class="author-icon">👤</span>
-                    <span class="author-name" id="modalAuthorName"></span>
+                <div class="event-author" id="eventAuthor" style="display:none;">
+                    <img id="authorAvatar" src="" alt="avatar">
+                    <div class="author-info">
+                        <span class="author-name" id="modalAuthorName"></span>
+                        <span class="author-role">Автор події</span>
+                    </div>
                 </div>
-
-
 
 
                 <!-- коментарі -->
                 <div class="event-side-card comments-section">
-                    <h4>Коментарі</h4>
 
-                    <div class="comments-list">
-                        <!-- JS / backend -->
-                        daf
-                        dsa
-                    </div>
+                    <div class="comments-list"></div>
                     <!-- реакції -->
                     <div class="event-stats">
+                            <div class="event-stat like-toggle" id="likeBtn">
+                                <span class="heart">🤍</span>
+                                <span id="likesCount">0</span>
+                            </div>
+
                         <div class="event-stat">
-                            ❤️ <span>24</span>
-                        </div>
-                        <div class="event-stat">
-                            💬 <span>8</span>
+                            💬 <span id="commentsCount">0</span>
                         </div>
                     </div>
+
                     <div class="comment-input">
-                        <input type="text" placeholder="Написати коментар...">
-                        <button>➤</button>
+                        <input type="text" id="commentText" placeholder="Написати коментар...">
+                        <button id="sendComment" type="button">➤</button>
                     </div>
                 </div>
 

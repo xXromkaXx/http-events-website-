@@ -16,7 +16,8 @@ $random = isset($_GET['random']);
 
 $sql = "SELECT 
             events.*, 
-            users.username
+            users.username,
+            users.avatar
         FROM events
         LEFT JOIN users ON users.id = events.user_id
         WHERE 1";
@@ -137,7 +138,7 @@ function formatEventForDisplay($event) {
 
     // Обробляємо зображення
     if (empty($event['image'])) {
-        $event['image'] = 'assets/images/default-event.jpg';
+        $event['image'] = 'assets/img/default-event.jpg';
     }
 
     return $event;

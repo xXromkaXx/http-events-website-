@@ -26,9 +26,12 @@ class EventsManager {
                 filterMenu.style.display = filterMenu.style.display === 'block' ? 'none' : 'block';
             });
 
-            document.addEventListener('click', () => {
-                filterMenu.style.display = 'none';
+            document.addEventListener('click', (e) => {
+                if (!filterMenu.contains(e.target) && e.target !== filterBtn) {
+                    filterMenu.style.display = 'none';
+                }
             });
+
 
             filterMenu.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -302,16 +305,17 @@ class EventsManager {
         card.setAttribute('data-date', event.event_date || '');
         card.setAttribute('data-time', event.event_time || '');
         card.setAttribute('data-description', event.description || '');
-        card.setAttribute('data-image', event.image || 'assets/images/default-event.jpg');
+        card.setAttribute('data-image', event.image || 'assets/img/default-event.jpg');
         card.setAttribute('data-creator', event.username || '');
+        card.setAttribute('data-avatar', event.avatar || 'assets/img/default-avatar.png');
 
         const description = event.description_short ||
             (event.description ? event.description.substring(0, 100) + '...' : 'Опис відсутній');
 
         card.innerHTML = `
             <div class="event-image">
-                <img src="${event.image || 'assets/images/default-event.jpg'}" alt="${event.title || 'Подія'}" 
-                     onerror="this.src='assets/images/default-event.jpg'">
+                <img src="${event.image || 'assets/img/default-event.jpg'}" alt="${event.title || 'Подія'}" 
+                     onerror="this.src='assets/img/default-event.jpg'">
             </div>
             <div class="event-info">
                 <h3>${this.escapeHtml(event.title || 'Без назви')}</h3>
@@ -325,25 +329,11 @@ class EventsManager {
             </div>
         `;
 
-        // Додаємо обробник кліку для кнопки "Детальніше"
-        const viewBtn = card.querySelector('.btn-view');
-        viewBtn.addEventListener('click', () => {
-            this.showEventDetails(event.id);
-        });
 
         return card;
     }
 
-    showEventDetails(eventId) {
-        // Використовуємо універсальний менеджер модальних вікон
-        if (typeof eventModalManager !== 'undefined' && typeof eventModalManager.openViewModal === 'function') {
-            eventModalManager.openViewModal(eventId);
-        } else {
-            console.error('Менеджер модальних вікон не знайдено!');
-            // Резервний варіант - перехід на сторінку події
-            window.location.href = `event.php?id=${eventId}`;
-        }
-    }
+
 
     clearAllFilters() {
         this.currentFilters = {
