@@ -32,7 +32,6 @@ try {
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/modal.css">
-    <link rel="stylesheet" href="assets/css/edit-modal.css">
     <link rel="stylesheet" href="assets/css/profile.css">
 
 </head>
@@ -151,7 +150,7 @@ try {
         <?php else: ?>
             <div class="no-events-message">
                 <p>У вас ще немає створених подій.</p>
-                <a href="create_event.php" class="btn-create-first">Створити першу подію</a>
+                <a href="/event_form.php" class="btn-create-first">Створити першу подію</a>
             </div>
         <?php endif; ?>
     </div>
@@ -159,7 +158,6 @@ try {
 
 <?php
 include 'components/event_modal.php';
-include 'components/edit_modal.php';
 include 'includes/footer.php';
 ?>
 

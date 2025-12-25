@@ -103,7 +103,7 @@ require_once 'init.php';
             </div>
 
             <!-- Мої події -->
-            <a href="my_events.php" class="my-events-btn">Мої події</a>
+            <a href="/my_events.php" class="my-events-btn">Мої події</a>
         </div>
 
         <!-- Місце для подій -->

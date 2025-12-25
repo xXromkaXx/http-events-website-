@@ -1,6 +1,12 @@
 // Логіка для сторінки створення події
 class CreateEventManager {
+
+
     constructor() {
+        this.form = document.getElementById('createEventForm');
+        this.categorySelect = document.getElementById('categorySelect');
+        this.customCategory = document.getElementById('custom-category');
+
         this.init();
     }
 
@@ -9,19 +15,71 @@ class CreateEventManager {
         this.setupImagePreview();
         this.setupDateValidation();
         this.setupErrorClearing();
+        this.setupSubmitValidation();
+        this.updateCategoryPreview();
+        this.disableEnterSubmit();
+
+    }
+    disableEnterSubmit() {
+        this.form.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+
+                // textarea — дозволяємо Enter
+                if (e.target.tagName === 'TEXTAREA') return;
+
+                e.preventDefault();
+
+                const fields = Array.from(
+                    this.form.querySelectorAll('input, select, textarea')
+                ).filter(el => !el.hidden && !el.disabled);
+
+                const index = fields.indexOf(e.target);
+                if (index > -1 && fields[index + 1]) {
+                    fields[index + 1].focus();
+                }
+            }
+        });
     }
 
     setupCategoryToggle() {
-        const categorySelect = document.getElementById('categorySelect');
-        const customField = document.getElementById('custom-category');
+        if (!this.categorySelect || !this.customCategory) return;
 
-        if (!categorySelect || !customField) return;
+        this.categorySelect.addEventListener('change', () => {
+            if (this.categorySelect.value === 'Інше') {
+                this.customCategory.classList.remove('hidden');
+                this.customCategory.setAttribute('required', 'required');
+                this.customCategory.focus();
+            } else {
+                this.customCategory.classList.add('hidden');
+                this.customCategory.removeAttribute('required');
+                this.customCategory.value = '';
+            }
 
-        categorySelect.addEventListener('change', function () {
-            customField.style.display = this.value === 'Інше'
-                ? 'block'
-                : 'none';
+            this.updateCategoryPreview();
         });
+
+        this.customCategory.addEventListener('input', () => {
+            this.updateCategoryPreview();
+        });
+    }
+
+
+    updateCategoryPreview() {
+        const previewCategory = document.getElementById('previewCategory');
+        if (!previewCategory) return;
+
+        const placeholder = 'Категорія';
+
+        if (
+            this.categorySelect.value === 'Інше' &&
+            this.customCategory.value.trim()
+        ) {
+            previewCategory.textContent = this.customCategory.value.trim();
+        } else if (this.categorySelect.value) {
+            previewCategory.textContent = this.categorySelect.value;
+        } else {
+            previewCategory.textContent = placeholder;
+        }
     }
 
     setupImagePreview() {
@@ -76,6 +134,25 @@ class CreateEventManager {
             });
         });
     }
+
+
+
+    setupSubmitValidation() {
+        if (!this.form) return;
+
+        this.form.addEventListener('submit', (e) => {
+            if (
+                this.categorySelect.value === 'Інше' &&
+                !this.customCategory.value.trim()
+            ) {
+                e.preventDefault();
+
+                this.customCategory.classList.add('field-error');
+                this.customCategory.focus();
+            }
+        });
+    }
+
 }
 function truncateText(text, maxLength = 120) {
     if (!text) return '';
@@ -84,11 +161,20 @@ function truncateText(text, maxLength = 120) {
         : text;
 }
 
+
+
+
+
+
 // Ініціалізація
 document.addEventListener('DOMContentLoaded', () => {
     new CreateEventManager();
     /* ===== 1. УНІВЕРСАЛЬНЕ ОНОВЛЕННЯ ТЕКСТУ ===== */
-
+    ['eventTitle','eventLocation','categorySelect','eventDescription']
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.dispatchEvent(new Event('input'));
+        });
     const map = {
         eventTitle: 'previewTitle',
         eventLocation: 'previewLocation',
@@ -96,20 +182,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     Object.keys(map).forEach(inputId => {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(map[inputId]);
+        const categorySelect = document.getElementById('categorySelect');
+        const customCategory = document.getElementById('custom-category');
+        const previewCategory = document.getElementById('previewCategory');
+        const categoryPlaceholder = previewCategory.textContent;
 
-        if (!input || !preview) return;
+        function updateCategoryPreview() {
+            if (categorySelect.value === 'Інше' && customCategory.value.trim()) {
+                previewCategory.textContent = customCategory.value.trim();
+            } else if (categorySelect.value) {
+                previewCategory.textContent = categorySelect.value;
+            } else {
+                previewCategory.textContent = categoryPlaceholder;
+            }
+        }
 
-        const placeholder = preview.textContent;
 
-        input.addEventListener('input', () => {
-            preview.textContent = input.value || placeholder;
-        });
-
-        input.addEventListener('change', () => {
-            preview.textContent = input.value || placeholder;
-        });
     });
 
     /* ===== 2. ДАТА (ОКРЕМО, КРАСИВО) ===== */

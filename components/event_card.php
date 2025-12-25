@@ -53,15 +53,19 @@
             </button>
 
             <?php if ($showEditDelete ?? false): ?>
-                <button class="btn-edit" data-event-id="<?= $event['id'] ?>">
+                <a href="/event_form.php?id=<?= $event['id'] ?>"
+                   class="btn-edit"
+                   onclick="event.stopPropagation()">
                     ✏️ Редагувати
-                </button>
+                </a>
+
                 <button class="btn-delete"
                         data-event-id="<?= $event['id'] ?>"
                         data-event-title="<?= htmlspecialchars($event['title']) ?>">
                     🗑️ Видалити
                 </button>
             <?php endif; ?>
+
         </div>
     </div>
 </div>
