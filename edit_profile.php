@@ -304,8 +304,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <!-- ===== ПРОФІЛЬ ===== -->
-    <div class="section-card">
-        <form method="POST" action="edit_profile.php">
+    <div class="section-card primary">
+        <form method="POST" action="/edit_profile.php">
             <input type="hidden" name="action" value="profile">
             <?php
             $currentAvatar = $user['avatar'];

@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $dataImg = explode(',', $_POST['cropped_avatar'])[1];
 
-            $dir = 'uploads/tmp/';
+            $dir = 'uploads/avatars/';
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }

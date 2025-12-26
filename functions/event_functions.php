@@ -33,52 +33,74 @@ function createEvent($userId, $title, $description, $category, $event_date, $eve
  * Завантаження зображення події
  * @return string|null шлях до зображення або null
  */
-function uploadEventImage(array $file, string $category, ?string $oldImage = null)
+function uploadEventImage(array $file, string $category, ?string $oldImage = null): string
 {
-    $imagePath = null;
-
-    // 1️⃣ Якщо завантажили нове фото
-    if (!empty($file['name'])) {
-        $targetDir = __DIR__ . '/../uploads/';
-        if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-
-        $fileName = time() . "_" . basename($file['name']);
-        $targetFile = $targetDir . $fileName;
-        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-        if (in_array($imageFileType, $allowedTypes)) {
-            if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-                $imagePath = 'uploads/' . $fileName;
-            }
-        }
+    // 1️⃣ Якщо файл не завантажений
+    if (
+        empty($file['name']) ||
+        $file['error'] !== UPLOAD_ERR_OK
+    ) {
+        return $oldImage ?? getDefaultCategoryImage($category);
     }
 
-    // 2️⃣ Якщо НЕ завантажили нове, але є старе фото → залишаємо
-    if (($imagePath === null || $imagePath === '') && !empty($oldImage)) {
-        return $oldImage;
+    // 2️⃣ Папка збереження
+    $uploadDir = __DIR__ . '/../uploads/event/';
+    $publicPath = 'uploads/event/';
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
     }
 
-    // 3️⃣ Якщо взагалі немає фото → автокартинка по категорії
-    if ($imagePath === null || $imagePath === '') {
-        $categoryImages = [
-            'Футбол' => 'assets/img/categories/football.jpg',
-            'Концерт' => 'assets/img/categories/concert.jpg',
-            'Зустріч' => 'assets/img/categories/meeting.jpg',
-            'Навчання' => 'assets/img/categories/learning.jpg',
-            'Прогулянка' => 'assets/img/categories/walk.jpg',
-            'Вечірка' => 'assets/img/categories/party.jpg',
-            'Волейбол' => 'assets/img/categories/volleyball.jpg',
-            'Мистецтво' => 'assets/img/categories/workmanship.jpg',
-        ];
+    // 3️⃣ Валідація
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-        return $categoryImages[$category] ?? 'assets/img/categories/other.jpg';
+    if (!in_array($ext, $allowed)) {
+        throw new Exception('Недопустимий формат файлу');
     }
 
-    return $imagePath;
+    if ($file['size'] > 5 * 1024 * 1024) {
+        throw new Exception('Файл перевищує 5MB');
+    }
+
+    // 4️⃣ Безпечне імʼя
+    $fileName = uniqid('event_', true) . '.' . $ext;
+    $target = $uploadDir . $fileName;
+
+    // 5️⃣ Переміщення з tmp → uploads/event
+    if (!move_uploaded_file($file['tmp_name'], $target)) {
+        throw new Exception('Помилка збереження файлу');
+    }
+
+
+    // 6️⃣ Видалення старого фото (ТІЛЬКИ якщо воно було завантажене)
+    if (
+        $oldImage &&
+        (strpos($oldImage, 'uploads/event/') === 0) &&
+        file_exists(__DIR__ . '/../' . $oldImage)
+    ) {
+        unlink(__DIR__ . '/../' . $oldImage);
+    }
+
+
+    return $publicPath . $fileName;
 }
+function getDefaultCategoryImage(string $category): string
+{
+    $images = [
+        'Футбол' => 'assets/img/categories/football.jpg',
+        'Концерт' => 'assets/img/categories/concert.jpg',
+        'Зустріч' => 'assets/img/categories/meeting.jpg',
+        'Навчання' => 'assets/img/categories/learning.jpg',
+        'Прогулянка' => 'assets/img/categories/walk.jpg',
+        'Вечірка' => 'assets/img/categories/party.jpg',
+        'Волейбол' => 'assets/img/categories/volleyball.jpg',
+        'Мистецтво' => 'assets/img/categories/workmanship.jpg',
+    ];
+
+    return $images[$category] ?? 'assets/img/categories/other.jpg';
+}
+
 
 
 function getEventById(int $eventId, int $userId)

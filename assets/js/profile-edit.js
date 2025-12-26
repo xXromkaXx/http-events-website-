@@ -8,75 +8,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!editBtn) return;
 
-        editBtn.onclick = () => {
+        editBtn.addEventListener('click', () => {
             row.classList.add('editing');
+            input.value = value.dataset.raw || value.textContent.trim();
             input.focus();
-        };
+        });
 
-        cancelBtn.onclick = () => {
+        cancelBtn?.addEventListener('click', () => {
             row.classList.remove('editing');
             input.value = value.dataset.raw || '';
-        };
+        });
     });
 
     // ===== AJAX зміна Email =====
     const emailForm = document.getElementById('emailForm');
-    const codeForm = document.getElementById('codeForm');
+    const codeForm  = document.getElementById('codeForm');
+    const emailMsg  = document.getElementById('emailMsg');
+    const codeMsg   = document.getElementById('codeMsg');
 
-    if (emailForm && codeForm) {
-        emailForm.addEventListener('submit', async e => {
-            e.preventDefault();
+    if (!emailForm || !codeForm) return;
 
-            const fd = new FormData(emailForm);
-            fd.append('ajax', 1);
+    /* === STEP 1: НАДСИЛАННЯ КОДУ === */
+    emailForm.addEventListener('submit', async e => {
+        e.preventDefault();
 
-            const res = await fetch('', {
-                method: 'POST',
-                body: fd
-            });
+        emailMsg.textContent = 'Відправляємо код…';
+        emailMsg.style.color = '#aaa';
 
+        const fd = new FormData(emailForm);
+        fd.append('ajax', 1);
+
+        try {
+            const res = await fetch('', { method: 'POST', body: fd });
             const data = await res.json();
-            const msg = document.getElementById('emailMsg');
 
             if (data.error) {
-                msg.textContent = data.error;
-                msg.style.color = 'red';
+                emailMsg.textContent = data.error;
+                emailMsg.style.color = '#ff6b6b';
                 return;
             }
 
-            msg.textContent = data.success;
-            msg.style.color = 'green';
+            emailMsg.textContent = data.success;
+            emailMsg.style.color = '#2ecc71';
 
-            emailForm.style.display = 'none';
-            codeForm.style.display = 'block';
-            codeForm.querySelector('input[name="code"]').focus();
-        });
+            /* step transition */
+            emailForm.classList.add('step-hidden');
+            setTimeout(() => {
+                emailForm.style.display = 'none';
+                codeForm.style.display = 'block';
+                codeForm.classList.remove('step-hidden');
+                codeForm.querySelector('input[name="code"]').focus();
+            }, 300);
 
-        codeForm.addEventListener('submit', async e => {
-            e.preventDefault();
+        } catch {
+            emailMsg.textContent = 'Помилка зʼєднання';
+            emailMsg.style.color = '#ff6b6b';
+        }
+    });
 
-            const fd = new FormData(codeForm);
-            fd.append('ajax', 1);
-            fd.append('action', 'confirm_email');
+    /* === STEP 2: ПІДТВЕРДЖЕННЯ КОДУ === */
+    codeForm.addEventListener('submit', async e => {
+        e.preventDefault();
 
-            const res = await fetch('', {
-                method: 'POST',
-                body: fd
-            });
+        codeMsg.textContent = 'Перевіряємо код…';
+        codeMsg.style.color = '#aaa';
 
+        const fd = new FormData(codeForm);
+        fd.append('ajax', 1);
+        fd.append('action', 'confirm_email');
+
+        try {
+            const res = await fetch('', { method: 'POST', body: fd });
             const data = await res.json();
-            const msg = document.getElementById('codeMsg');
 
             if (data.error) {
-                msg.textContent = data.error;
-                msg.style.color = 'red';
+                codeMsg.textContent = data.error;
+                codeMsg.style.color = '#ff6b6b';
                 return;
             }
 
-            msg.textContent = data.success;
-            msg.style.color = 'green';
+            codeMsg.textContent = data.success;
+            codeMsg.style.color = '#2ecc71';
 
             setTimeout(() => location.reload(), 1200);
-        });
-    }
+
+        } catch {
+            codeMsg.textContent = 'Помилка зʼєднання';
+            codeMsg.style.color = '#ff6b6b';
+        }
+    });
+
 });
