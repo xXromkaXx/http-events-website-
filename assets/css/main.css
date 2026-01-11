@@ -1,5 +1,14 @@
 /* скрол для усіх */
 /* Chrome, Edge, Safari */
+html, body {
+    height: 100%;
+    overscroll-behavior: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -259,7 +268,14 @@ body {
 /*.nav-links a.logout   { font-size: 1.20rem; padding: 10px 24px; margin-top: 0px; }*/
 .nav-links a.btn-register{ font-size: 1.20rem; padding: 10px 24px; }
 .nav-links a.btn-login{font-size: 1.20rem; padding: 10px 24px;  }
-
+.filter_and_search {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    max-width: 80%;
+    flex-direction: row;
+    justify-content: center;
+}
 /* Події — активна */
 .nav-links a.active {
 
@@ -439,6 +455,12 @@ body {
 
 /* === АДАПТИВ === */
 @media (max-width: 1000px) {
+
+    .filter-btn{
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
     .hero-section {
         padding: 60px 40px;
         align-items: center;
@@ -473,5 +495,164 @@ body {
         width: 90%;
         height: auto;
         transform: none;
+    }
+}
+
+/* ============================= */
+/* 📱 MOBILE (до 768px) */
+/* ============================= */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 20px 0;
+    }
+    /* === HEADER === */
+    .navbar {
+        padding: 10px 14px;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .navbar.scrolled {
+        padding: 10px 14px;
+        box-shadow: none;
+    }
+
+    .logo-container {
+        width: 100%;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .logo-container a {
+        font-size: 0.85rem;
+    }
+
+    .logo img {
+        height: 36px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .nav-links a {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 18px;
+        transform: none !important;
+    }
+
+    .nav-links a.active {
+        font-size: 0.9rem;
+        padding: 8px 14px;
+    }
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .filter_and_search {
+        display: flex;
+        gap: 10px;
+        flex: 1;
+        max-width: 85%;
+        align-items: stretch;
+        justify-content: center;
+        flex-direction: row-reverse;
+    }
+
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
+        gap: 6px;
+    }
+
+    .search-box input {
+        flex: 1;
+        min-width: 0;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .search-box button {
+        flex-shrink: 0;
+        padding: 18px 11px;
+        font-size: 0.8rem;
+    }
+
+    .active-filters {
+        display: none;
+    }
+
+
+
+    .filter-container {
+        flex: 0 0 auto;
+    }
+
+
+    .filter-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border-radius: 14px;
+    }
+
+    .my-events-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border-radius: 14px;
+        white-space: nowrap;
+    }
+
+
+
+    .hero-content h1 {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+    }
+
+    .hero-content ul li {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* ============================= */
+/* 📱 SMALL PHONES (до 480px) */
+/* ============================= */
+@media (max-width: 480px) {
+
+    .hero-content h1 {
+        font-size: 1.35rem;
+    }
+
+    .hero-content ul li {
+        font-size: 0.9rem;
+    }
+
+    .nav-links a {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+
+    .filter-btn,
+    .my-events-btn {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+    }
+
+    .nav-links a.active {
+        font-size: 1rem;
+        padding: 10px 18px;
+    }
+
+    .hero-gallery img {
+        border-radius: 14px;
     }
 }

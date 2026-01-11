@@ -11,6 +11,8 @@ require_once 'init.php';
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/modal.css">
 </head>
+
+
 <body>
 
 <?php include 'includes/header.php'; ?>
@@ -43,6 +45,7 @@ require_once 'init.php';
         <h2 class="events-title">події</h2>
 
         <div class="filter-bar">
+            <div class="filter_and_search">
             <!-- Кнопка фільтра -->
             <div class="filter-container">
                 <button class="filter-btn" id="filterBtn">фільтр</button>
@@ -96,7 +99,7 @@ require_once 'init.php';
                 <input type="text" id="searchInput" placeholder="пошук подій...">
                 <button class="search-btn">🔍</button>
             </div>
-
+            </div>
             <!-- Активні фільтри -->
             <div class="active-filters" id="activeFilters">
                 <!-- Тут будуть відображатися активні фільтри -->

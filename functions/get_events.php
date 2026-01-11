@@ -20,9 +20,14 @@ if ($filter !== 'Усі') {
     $params[':filter'] = $filter;
 }
 if (!empty($search)) {
-    $sql .= " AND (title LIKE :search OR description LIKE :search OR location LIKE :search)";
+    $sql .= " AND (
+        title LIKE :search
+        OR description LIKE :search
+        OR location LIKE :search
+    )";
     $params[':search'] = "%$search%";
 }
+
 $sql .= " ORDER BY event_date ASC";
 
 $stmt = $pdo->prepare($sql);

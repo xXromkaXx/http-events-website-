@@ -88,7 +88,7 @@ class EventsManager {
             searchInput.addEventListener('input', () => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.currentFilters.search = searchInput.value.trim().toLowerCase();
+                    this.currentFilters.search = searchInput.value.trim();
                     this.updateActiveFilters();
                     this.loadEvents();
                 }, 300);

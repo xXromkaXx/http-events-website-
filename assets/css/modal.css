@@ -1,10 +1,15 @@
 /* ===================== */
 /* 🌌 MODERN EVENT MODAL */
 /* ===================== */
-.event-modal.show .event-modal-content {
-    animation: modalIn 0.35s ease;
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
 }
 
+/* Анімація появи */
 @keyframes modalIn {
     from {
         opacity: 0;
@@ -16,55 +21,60 @@
     }
 }
 
+/* ===== Модалка для всіх екранів ===== */
 .event-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.85);
     backdrop-filter: blur(8px);
     display: none;
     z-index: 9999;
-    align-items: center;
-    justify-content: center;
+}
+.event-modal-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
 }
 
-.event-modal.show {
-    display: flex;
-}
 
-/* ===== Modal Card ===== */
+
+/* ===== Контент модалки (адаптивний) ===== */
 .event-modal-content {
     position: relative;
-    width: 72vw;
-    max-width: 920px;
-    height: 82vh;
-
-    display: flex;
-    grid-template-rows:
-        auto
-        auto
-        auto
-        auto
-        auto
-        1fr;
-
     background: linear-gradient(
             180deg,
-            rgba(15,20,35,0.92),
-            rgba(10,15,25,0.96)
+            rgba(15,20,35,0.95),
+            rgba(10,15,25,0.98)
     );
-    flex-direction: column;
-    border-radius: 20px;
-    padding: 24px;
-    gap: 18px;
-
     border: 1px solid rgba(255,255,255,0.08);
     box-shadow:
             0 30px 80px rgba(0,0,0,0.7),
             inset 0 0 0 1px rgba(255,255,255,0.04);
+
+    /* Для десктопу */
+    width: 72vw;
+    max-width: 920px;
+    height: 82vh;
+    max-height: 82vh;
+    border-radius: 20px;
+    padding: 24px;
+    flex-direction: column;
+    gap: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-
-/* ===== Close ===== */
+.event-modal.show .event-modal-content {
+    animation: modalIn 0.35s ease;
+}
+.event-modal.show{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+    /* ===== Close ===== */
 .close-modal {
     position: absolute;
     top: 18px;
@@ -73,12 +83,81 @@
     cursor: pointer;
     opacity: 0.7;
     transition: 0.2s;
+    z-index: 10;
 }
 .close-modal:hover {
     opacity: 1;
     transform: scale(1.1);
 }
+.event-image-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 40vh;
+    overflow: hidden;
+}
+.event-main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
+.event-action svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    color: white;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    transition: transform .2s ease, color .2s ease;
+}
+.event-action span{
+    color: white;
+}
+.event-action.liked svg {
+    fill: rgb(255 0 56 / 76%);
+    stroke: rgb(228 10 82 / 76%);
+    transform: scale(1.1);
+}
+.event-action.liked {
+    color: var(--accent);
+}
+
+.event-action.saved {
+    color: var(--accent);
+}
+
+.event-action:active {
+    transform: scale(0.95);
+}
+
+/* ===== Layout ===== */
+.event-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.5fr 0.9fr;
+    gap: 24px;
+    min-height: 0;
+    height: 100%;
+}
+
+.event-left {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-right: 7px;
+}
+
+.event-right {
+    height: 100%;
+    padding: 5px;
+    border-radius: 18px;
+    border: 1px solid rgb(20 26 224 / 14%);
+    box-shadow: inset 0 0 0 1px rgb(27 30 155 / 17%), 0 12px 30px rgb(39 44 122 / 14%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: visible;
+}
 
 /* ===== Header ===== */
 .event-header {
@@ -99,6 +178,8 @@
     font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.3px;
+    color: white;
+    margin: 0;
 }
 
 .modal-category {
@@ -114,377 +195,10 @@
 }
 
 /* ===== Author ===== */
-.author-badge {
-    position: absolute;
-    top: 22px;
-    right: 60px;
-
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 6px 14px;
-    border-radius: 999px;
-
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    backdrop-filter: blur(6px);
-
-    font-size: 14px;
-}
-
-.author-name {
-    color: #fddb00;
-    font-weight: 600;
-}
-
-/* ===== Info grid ===== */
-.event-info-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.info-item {
-    padding: 10px 14px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.06);
-    font-size: 14px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* ===== Description ===== */
-.event-details-description {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-}
-
-.event-details-description h4 {
-    margin-bottom: 8px;
-    color: var(--accent);
-}
-
-#modalDescription {
-    flex: 1;
-    padding: 16px 18px;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.06);
-    font-size: 15px;
-    line-height: 1.3;
-    color: #fff;
-    overflow-y: auto;
-    white-space: pre-wrap;
-}
-#modalDescription::-webkit-scrollbar {
-    width: 6px;
-}
-#modalDescription::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.25);
-    border-radius: 10px;
-}
-
-
-.like-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    user-select: none;
-    font-size: 14px;
-    background: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-}
-.like-toggle:hover .heart {
-    transform: scale(1.15);
-}
-
-.like-toggle .heart {
-    font-size: 17px;
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.like-toggle.liked .heart {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 6px rgba(255, 80, 80, 0.8));
-}
-
-.event-side-card {
-    border-radius: 18px;
-    padding: 16px;
-    gap: 14px;
-}
-
-/* ===== Actions ===== */
-.event-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.event-actions button {
-    padding: 8px 18px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.event-actions button:hover {
-    background: rgba(253,219,0,0.18);
-    color: #fddb00;
-}
-.event-side-card.comments-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-/* ===== Comments ===== */
-.comments-section {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    min-height: 0;
-}
-
-
-.comments-list {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 6px;
-    gap: 12px;
-}
-
-/*!* scrollbar *!*/
-/*.comments-list::-webkit-scrollbar{*/
-/*    width: 6px;*/
-/*}*/
-
-/*.comments-list::-webkit-scrollbar-track {*/
-/*    background: transparent;*/
-/*}*/
-
-/*.comments-list::-webkit-scrollbar-thumb {*/
-/*    background: linear-gradient(*/
-/*            180deg,*/
-/*            #fcd402,*/
-/*            #ffb700*/
-/*    );*/
-/*    border-radius: 10px;*/
-/*}*/
-
-
-.comment {
-    background: linear-gradient(
-            135deg,
-            rgba(255,255,255,0.10),
-            rgba(255,255,255,0.04)
-    );
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 14px;
-    line-height: 1.4;
-    animation: fadeUp 0.25s ease;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.comment:hover {
-    transform: translateY(-2px);
-    background: rgba(255,255,255,0.12);
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.comment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.comment-author {
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--accent);
-}
-.comment p {
-    margin: 0;
-    color: #fff;
-    word-wrap: break-word;
-}
-
-.comment-time {
-    font-size: 11px;
-    opacity: 0.6;
-}
-
-.comment strong {
-    color: #fddb00;
-}
-
-.comment-input {
-    margin-top: 6px;
-    border-radius: 14px;
-}
-
-
-
-.comment-input input {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    font-size: 14px;
-    outline: none;
-    transition: border 0.2s, background 0.2s;
-}
-
-.comment-input input:focus {
-    background: rgba(255,255,255,0.12);
-    border-color: var(--accent);
-}
-
-.comment-input button {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(
-            135deg,
-            var(--accent),
-            #ffe84a
-    );
-    font-size: 18px;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.comment-input button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 12px rgba(253,219,0,0.6);
-}
-
-
-.event-layout {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1.5fr 0.9fr;
-    gap: 24px;
-    min-height: 0;
-}
-
-
-
-.event-left {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    overflow-y: hidden;
-    padding-right: 7px;
-}
-
-.event-right {
-    height: 100%;
-    padding: 5px;
-    border-radius: 18px;
-    border: 1px solid rgb(20 26 224 / 14%);
-    box-shadow: inset 0 0 0 1px rgb(27 30 155 / 17%), 0 12px 30px rgb(39 44 122 / 14%);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-
-.event-right .author-badge {
-    position: static;
-    justify-content: center;
-    margin-bottom: 8px;
-}
-
-.event-right .like-btn {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    border: none;
-    cursor: pointer;
-}
-
-
-
-.event-stats {
-    display: flex;
-    gap: 22px;
-    justify-content: flex-start;
-
-        margin-top: auto;
-        padding-top: 10px;
-
-}
-
-
-
-.event-stat {
-
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    opacity: 0.85;
-    transition: 0.2s;
-}
-
-.event-stat:hover {
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-.event-stat i {
-    font-size: 16px;
-}
-
-
-
-
-
 .event-author {
     display: flex;
     align-items: center;
     gap: 12px;
-
-    padding: 10px 14px;
-    border-radius: 16px;
-
-    background: linear-gradient(
-            135deg,
-            rgba(255,255,255,0.12),
-            rgba(255,255,255,0.05)
-    );
-
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(8px);
-
     cursor: pointer;
     transition: 0.25s;
 }
@@ -517,5 +231,1401 @@
 .author-role {
     font-size: 12px;
     opacity: 0.7;
+    color: rgba(255,255,255,0.8);
 }
+
+/* ===== Info grid ===== */
+.event-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.info-item {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.info-icon {
+    font-size: 16px;
+}
+
+.info-text {
+    flex: 1;
+    text-align: center;
+}
+
+.event-details-description {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    flex: 1; /* Займає доступний простір */
+}
+
+#modalDescription {
+    flex: 1; /* Займає весь доступний простір */
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 15px;
+    line-height: 1.6;
+    color: #fff;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: 100px; /* Мінімальна висота */
+    max-height: none !important; /* ВИДАЛИТЬ обмеження висоти */
+}
+
+#modalDescription::-webkit-scrollbar {
+    width: 6px;
+}
+#modalDescription::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+}
+/* ===================== */
+/* 🌟 MODERN COMMENTS REDESIGN */
+/* ===================== */
+
+/* ===== Коментарі секція загалом ===== */
+.comments-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 16px;
+}
+
+.comments-title {
+    color: var(--accent);
+    font-size: 18px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.comments-title::before {
+    content: "💬";
+    font-size: 16px;
+}
+
+
+/* Контейнер списку коментарів */
+.comments-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 200px;
+    overflow: hidden;
+}
+/* Список коментарів */
+.comments-list,
+.mobile-comments-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden; /* Забороняємо горизонтальну прокрутку */
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+}
+
+/* Прокрутка для списку */
+.comments-list::-webkit-scrollbar,
+.mobile-comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+/* Для коментарів всередині */
+.event-side-card.comments-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Тут можна залишити overflow */
+}
+.comments-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent), #ff9800);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ffd700, #ff8c00);
+}
+
+/* ===== Один коментар (сучасний дизайн) ===== */
+.comment,
+.mobile-comment {
+    background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.02)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: slideIn 0.3s cubic-bezier(0.21, 1.02, 0.73, 1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.comment:hover,
+.mobile-comment:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.comment::before,
+.mobile-comment::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    opacity: 0.7;
+    border-radius: 18px 0 0 18px;
+}
+
+/* ===== Шапка коментаря ===== */
+.comment-header,
+.mobile-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.comment-author-info,
+.mobile-comment-author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comment-author-avatar,
+.mobile-comment-author-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    padding: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.comment-author-avatar:hover,
+.mobile-comment-author-avatar:hover {
+    transform: scale(1.1);
+}
+
+.comment-author-details,
+.mobile-comment-author-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comment-author,
+.mobile-comment-author {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.comment-time,
+.mobile-comment-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.comment-time::before,
+.mobile-comment-time::before {
+    content: "🕒";
+    font-size: 11px;
+}
+
+/* ===== Тіло коментаря ===== */
+.comment-body,
+.mobile-comment-body {
+    padding: 12px 0;
+}
+
+.comment p,
+.mobile-comment-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    word-wrap: break-word;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+}
+
+/* ===== Дії коментаря ===== */
+.comment-actions,
+.mobile-comment-actions {
+    display: flex;
+    gap: 20px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.comment-action-btn,
+.mobile-comment-action-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.comment-action-btn:hover,
+.mobile-comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.comment-action-btn.liked,
+.mobile-comment-action-btn.liked {
+    color: #ff4d4d;
+}
+
+/* ===== Пустий стан ===== */
+.no-comments {
+    text-align: center;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    opacity: 0.7;
+}
+
+.no-comments-icon {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+.no-comments-text {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 300px;
+    line-height: 1.5;
+}
+/* Поле вводу завжди видно */
+.comment-input {
+    margin-top: auto; /* Притискаємо донизу */
+    flex-shrink: 0; /* Не даємо стискатися */
+    background: rgba(15, 20, 35, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* ===== Поле вводу (виправлення) ===== */
+.comment-input,
+.mobile-comment-input-area {
+    padding: 16px;
+    background: rgba(15, 20, 35, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    position: relative;
+    z-index: 10; /* Додаємо z-index */
+}
+
+.comment-input::before,
+.mobile-comment-input-area::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+}
+
+.comment-input input,
+.mobile-comment-input-area input {
+    flex: 1;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    backdrop-filter: blur(10px);
+}
+
+.comment-input input::placeholder,
+.mobile-comment-input-area input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.comment-input input:focus,
+.mobile-comment-input-area input:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.comment-input button,
+.mobile-comment-input-area button {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ff9800);
+    border: none;
+    color: black;
+    font-size: 20px;
+    flex-shrink: 0;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.comment-input button::before,
+.mobile-comment-input-area button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.comment-input button:hover::before,
+.mobile-comment-input-area button:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+.comment-input button:hover,
+.mobile-comment-input-area button:hover {
+    transform: scale(1.08) rotate(5deg);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+}
+
+.comment-input button:active,
+.mobile-comment-input-area button:active {
+    transform: scale(0.95);
+}
+
+.comment-input button:disabled,
+.mobile-comment-input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+/* ===== Accessibility ===== */
+@media (prefers-reduced-motion: reduce) {
+    .comment,
+    .mobile-comment,
+    .comment-input button,
+    .mobile-comment-input-area button {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* Фокус для доступності */
+.comment-input input:focus-visible,
+.mobile-comment-input-area input:focus-visible,
+.comment-action-btn:focus-visible,
+.mobile-comment-action-btn:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+/* ===== Індикатор нових коментарів ===== */
+.new-comments-indicator {
+    position: sticky;
+    top: 10px;
+    z-index: 10;
+    background: linear-gradient(135deg, var(--accent), #ff9800);
+    color: black;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 14px 10px;
+    cursor: pointer;
+    transform: translateY(-10px);
+    opacity: 0;
+    animation: slideDown 0.3s ease forwards;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    border: none;
+}
+
+@keyframes slideDown {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== Анімації ===== */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ===== Завантаження коментарів ===== */
+.comments-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
+
+
+/* animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--accent);
+}
+
+.comment p {
+    margin: 0;
+    color: #fff;
+    word-wrap: break-word;
+}
+
+.comment-time {
+    font-size: 11px;
+    opacity: 0.6;
+    color: rgba(255,255,255,0.6);
+}
+
+/* ===== Stats ===== */
+.event-stats {
+    display: flex;
+    gap: 22px;
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.event-stat {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: 0.2s;
+    color: white;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ===== Like Button ===== */
+.like-toggle {
+    display: flex;
+    gap: 3px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    background: none !important;
+    padding: 0 !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Біла обводка за замовчуванням */
+.icon-heart {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.2s ease;
+}
+
+/* Hover ефект */
+.like-toggle:hover .icon-heart {
+    stroke: var(--accent);
+    transform: scale(1.15);
+}
+
+/* Повністю червоне серце після лайку */
+.liked .icon-heart {
+    stroke: #ff4d4d;
+    fill: #ff4d4d;
+    filter: drop-shadow(0 0 6px rgba(255, 77, 77, 0.8));
+}
+
+/* Анімація при лайку */
+.like-toggle.liked .icon-heart {
+    animation: heartPop 0.35s ease;
+}
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.4); }
+    100% { transform: scale(1.2); }
+}
+
+/* Для мобільних кнопок */
+.mobile-action-btn.active .icon-heart {
+    stroke: #ff4d4d;
+    fill: #ff4d4d;
+}
+
+/* ===== Comment Input ===== */
+.icon-comment {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.2s ease;
+}
+
+.mobile-action-btn:hover .icon-comment {
+    stroke: var(--accent);
+    transform: scale(1.15);
+}
+
+.mobile-action-btn.active .icon-comment {
+    stroke: var(--accent);
+    fill: var(--accent);
+}
+
+
+
+.action-count {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffd700;
+}
+
+
+
+
+/* Підтримка iOS Safe Area */
+@supports (padding: max(0px)) {
+    .event-modal-content {
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(120px, env(safe-area-inset-bottom));
+    }
+
+    .mobile-actions {
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
+    }
+}
+
+/* ===== Модалка для коментарів на мобільних ===== */
+.mobile-comments-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0f1423;
+    z-index: 10003;
+    display: none;
+    flex-direction: column;
+}
+
+.mobile-comments-modal.show {
+    display: flex;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mobile-comments-header {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-comments-header h3 {
+    color: #ffd700;
+    font-size: 22px;
+    margin: 0;
+}
+
+.close-comments {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    padding: 5px 15px;
+}
+
+
+
+.mobile-comment-input-area {
+    padding: 15px;
+    background: rgba(15, 20, 35, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 10px;
+}
+
+.mobile-comment-input-area input {
+    flex: 1;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.mobile-comment-input-area input:focus {
+    border-color: #ffd700;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.mobile-comment-input-area button {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd700, #ff9800);
+    border: none;
+    color: black;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.read-more,
+.read-less {
+    color: #f5c518;
+    cursor: pointer;
+    font-weight: 600;
+}
+/* Для десктопу */
+@media (min-width: 1025px) {
+    body.modal-open {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .event-modal {
+        overscroll-behavior: contain;
+    }
+
+
+    .event-author.author-sticky {
+        display: none !important;
+    }
+
+
+    .mobile-actions {
+        display: none;
+    }
+
+    .mobile-comments-modal {
+        display: none !important;
+    }
+
+    /* Показуємо праву колонку */
+    .event-right {
+        display: flex !important;
+    }
+
+
+
+    .event-header img:not(.event-main-image) {
+        display: block;
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 20px;
+    }
+
+    .event-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .info-item.modal-author-mobile {
+        display: none !important;
+    }
+
+    .img_and_info {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Дві рівні колонки */
+        gap: 30px;
+        align-items: start; /* Вирівнюємо по верхньому краю */
+        margin-bottom: 20px;
+    }
+
+    .event-image-container {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto; /* Видаляємо фіксоване співвідношення */
+        max-height: none; /* Прибираємо обмеження висоти */
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .event-main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        max-height: 400px; /* Максимальна висота, але можна змінити */
+    }
+
+    .info-event {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        height: 100%;
+    }
+
+    .event-header {
+        display: block; /* Прибираємо flex для правильного відображення */
+    }
+
+    .event-title-block h3 {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0 0 10px 0;
+        color: white;
+        word-wrap: break-word;
+    }
+
+    .modal-category {
+        display: inline-block;
+        background: var(--accent);
+        color: #111;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .event-info-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Всі елементи в один стовпчик */
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .info-item {
+        padding: 14px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        text-align: left;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+    }
+
+    .info-icon {
+        font-size: 18px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .info-text {
+        flex: 1;
+        text-align: left;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    /* Специфічні стилі для типів інформації */
+    .modal-location .info-icon {
+        background: rgba(52, 152, 219, 0.15);
+    }
+
+    .modal-date .info-icon {
+        background: rgba(155, 89, 182, 0.15);
+    }
+
+    .modal-time .info-icon {
+        background: rgba(46, 204, 113, 0.15);
+    }
+}
+
+/* Покращення доступності */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Висока контрастність */
+/* ===== Підвищена контрастність для доступності ===== */
+@media (prefers-contrast: more) {
+    /* Інформаційні елементи */
+    .info-item {
+        border: 2px solid #000000;
+        color: #000000;
+    }
+
+    .info-icon {
+        color: #000000;
+    }
+
+    .info-text {
+        color: #000000;
+        font-weight: 600;
+    }
+
+    /* Опис події */
+    .description-content {
+        border: 2px solid #000000;
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .description-title {
+        color: #000000;
+        border-bottom: 3px solid #000000;
+    }
+
+    /* Коментарі */
+    .comment {
+        border: 2px solid #000000;
+        background: #ffffff;
+    }
+
+    .comment p {
+        color: #000000;
+    }
+
+    .comment-author {
+        color: #000000;
+        font-weight: 700;
+    }
+
+    .author-name {
+        color: #000000;
+        font-weight: 800;
+    }
+
+    /* Кнопки та інтерактивні елементи */
+    .mobile-action-btn {
+        border: 2px solid #000000;
+        color: #000000;
+    }
+
+    .mobile-action-btn.active {
+        border: 3px solid #000000;
+        background: var(--accent);
+    }
+
+    .action-count {
+        color: #000000;
+        font-weight: 800;
+    }
+
+    /* Статистика */
+    .event-stat {
+        color: #000000;
+        font-weight: 600;
+    }
+
+    /* Введення тексту */
+    .comment-input input,
+    .mobile-comment-input-area input {
+        border: 2px solid #000000;
+        background: #ffffff;
+        color: #000000;
+    }
+
+    /* Заголовок модалки */
+    .event-title-block h3 {
+        color: #000000;
+        text-shadow: none;
+    }
+
+    /* Категорія */
+    .modal-category {
+        border: 2px solid #000000;
+        background: var(--accent);
+        color: #000000;
+        font-weight: 800;
+    }
+}
+
+/* ===== Менша контрастність (для чутливих очей) ===== */
+@media (prefers-contrast: less) {
+    .info-item {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .description-content {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .event-author {
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        background: rgba(255, 215, 0, 0.05);
+    }
+
+    .comment {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+    }
+}
+
+/* ===== Фокус для доступності (працює завжди) ===== */
+.mobile-action-btn:focus-visible,
+#commentText:focus-visible,
+.close-modal:focus-visible,
+.comment-input input:focus-visible,
+.mobile-comment-input-area input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* Додаткова підтримка високої контрастності в Windows */
+@media (-ms-high-contrast: active) {
+    .info-item {
+        border: 2px solid windowText;
+        background: window;
+        color: windowText;
+    }
+
+    .description-content {
+        border: 2px solid windowText;
+        background: window;
+        color: windowText;
+    }
+
+    .event-author {
+        border: 2px solid highlight;
+        background: window;
+    }
+}
+
+/* ===== Покращення для людей з дислексією ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ===== Підвищена читабельність ===== */
+@media (prefers-reduced-transparency: reduce) {
+    .event-modal {
+        backdrop-filter: none;
+        background: rgba(0, 0, 0, 0.95);
+    }
+
+    .event-author,
+    .comment,
+    .info-item {
+        backdrop-filter: none;
+    }
+}
+/* ===== SAVE BUTTON ===== */
+.save-toggle svg {
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+}
+.save-toggle.saved svg {
+    fill: var(--accent);
+    stroke: var(--accent);
+}
+
+/* ===== MOBILE ACTION BAR ===== */
+@media (max-width: 768px) {
+    .event-modal {
+        position: fixed;
+        inset: 0;
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+    .like-toggle {
+        color: white;
+    }
+
+    .event-modal-content {
+        width: 100vw;
+        max-width: 100vw;
+        /*height: 100dvh;*/
+        max-height: 90dvh;
+top: 4%;
+        margin: 0;
+        border-radius: 0;
+        padding: 16px 16px 90px;
+
+        border: none;
+        box-shadow: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .close-modal {
+        top: 14px;
+        right: 14px;
+        font-size: 28px;
+    }
+
+
+    .event-modal-content.scrolled .author-sticky {
+        transform: scale(0.92);
+        opacity: 0.9;
+    }
+
+    .event-layout {
+        display: block;
+    }
+
+    .event-right {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        overflow: visible;
+    }
+
+    /* ховаємо все в правій колонці КРІМ кнопок */
+    .event-right > :not(.event-actions) {
+        display: none !important;
+    }
+
+    /* витягуємо кнопки поверх всього */
+    .event-actions {
+        position: fixed;
+        right: 12px;
+        top: 35%;
+        z-index: 10001;
+
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .event-action {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: rgba(20,20,40,0.9);
+        border: 1px solid rgba(255,255,255,.15);
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .close-modal {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+
+        width: 44px;
+        height: 44px;
+        font-size: 28px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(0,0,0,0.6);
+        border-radius: 50%;
+
+        z-index: 10001;
+    }
+
+
+
+    .comments-section {
+        gap: 12px;
+    }
+
+    .comment,
+    .mobile-comment {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .comment-author-avatar,
+    .mobile-comment-author-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .comment p,
+    .mobile-comment-text {
+        font-size: 14.5px;
+    }
+
+    .comment-input,
+    .mobile-comment-input-area {
+        position: fixed; /* Фіксуємо внизу */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(15, 20, 35, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 16px;
+        z-index: 10002;
+    }
+    .comment-input button,
+    .mobile-comment-input-area button {
+        width: 48px;
+        height: 48px;
+    }
+    /* Корекція для безпечних зон iOS */
+    @supports (padding: max(0px)) {
+        .comment-input,
+        .mobile-comment-input-area {
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+    }
+}
+@media (min-width: 769px) {
+    .mobile-actions { display: none !important; }
+    .mobile-action-buttons{ display: none !important; }
+    .event-actions {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-top: 20px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .event-action {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        background: none;
+        border: none;
+        padding: 6px 8px;
+
+        color: rgba(255,255,255,0.85);
+        font-size: 14px;
+        font-weight: 600;
+
+        cursor: pointer;
+        transition: color .2s ease, transform .15s ease;
+        justify-content: space-evenly;
+    }
+}
+
+/* ===== AUTHOR STICKY – MOBILE/TABLET ONLY ===== */
+@media (max-width: 768px) {
+
+    .event-author.author-sticky {
+        position: absolute;
+        top: calc(env(safe-area-inset-top) + 12px);
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        padding: 2px 16px 2px 2px;
+        border-radius: 999px;
+
+        background: linear-gradient(
+                135deg,
+                rgba(20,20,40,0.88),
+                rgba(20,20,40,0.65)
+        );
+
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,0.14);
+
+        box-shadow:
+                0 10px 28px rgba(0,0,0,0.45),
+                inset 0 0 0 1px rgba(255,255,255,0.08);
+
+        transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    /* легке зменшення при скролі */
+    .event-modal-content.scrolled .event-author.author-sticky {
+        transform: scale(0.94);
+        opacity: 0.92;
+    }
+
+    /* ===== AVATAR ===== */
+    .event-author.author-sticky .author-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+
+        border: 2px solid var(--accent);
+        box-shadow:
+                0 0 0 3px rgba(255,215,0,0.18),
+                0 6px 18px rgba(0,0,0,0.45);
+    }
+
+    /* ===== TEXT ===== */
+    .event-author.author-sticky .author-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .event-author.author-sticky .author-role {
+        font-size: 12px;
+        opacity: 0.75;
+    }
+
+    .end{
+        height: 30px;
+    }
+}
+@media (min-width: 769px) {
+    .event-author.author-sticky {
+        display: none !important;
+    }
+}
+
 
