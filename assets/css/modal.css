@@ -53,7 +53,6 @@ body.modal-open {
             inset 0 0 0 1px rgba(255,255,255,0.04);
 
     /* Для десктопу */
-    width: 72vw;
     max-width: 920px;
     height: 82vh;
     max-height: 82vh;
@@ -122,8 +121,10 @@ body.modal-open {
     color: var(--accent);
 }
 
-.event-action.saved {
-    color: var(--accent);
+.event-action.saved svg {
+    fill: rgba(255, 255, 255, 0.87);
+    color: #939393;
+    transform: scale(1.1);
 }
 
 .event-action:active {
@@ -1419,17 +1420,8 @@ top: 4%;
         display: block;
     }
 
-    .event-right {
-        background: none;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        overflow: visible;
-    }
-
-    /* ховаємо все в правій колонці КРІМ кнопок */
-    .event-right > :not(.event-actions) {
-        display: none !important;
+    .event-right{
+        display: none;
     }
 
     /* витягуємо кнопки поверх всього */

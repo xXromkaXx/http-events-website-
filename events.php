@@ -13,6 +13,8 @@ $location = trim($_GET['location'] ?? '');
 $search = trim($_GET['search'] ?? '');
 $random = isset($_GET['random']);
 
+$userId = $_SESSION['user']['id'] ?? null;
+$excludeMy = isset($_GET['exclude_my']) && $userId !== null;
 
 
 $sql = "SELECT 
@@ -24,12 +26,26 @@ $sql = "SELECT
         WHERE 1";
 $params = [];
 
+
 // Фільтр по категорії
 if ($category !== 'Усі') {
     $sql .= " AND category = :category";
     $params[':category'] = $category;
     error_log("Додано фільтр категорії: " . $category);
 }
+
+/* 🔥 МОЇ ПОДІЇ */
+if (isset($_GET['my']) && $_GET['my'] == '1' && $userId) {
+    $sql .= " AND events.user_id = :my_user_id";
+    $params[':my_user_id'] = $userId;
+}
+/* 🚫 ВИКЛЮЧИТИ МОЇ ПОДІЇ */
+if ($excludeMy && $userId !== null) {
+    $sql .= " AND (events.user_id IS NULL OR events.user_id != :exclude_user_id)";
+    $params[':exclude_user_id'] = (int)$userId;
+}
+
+
 
 // Фільтр по даті
 if ($date !== 'all') {
@@ -86,14 +102,12 @@ if (!empty($location)) {
 if (!empty($search)) {
     $sql .= " AND (
         title LIKE :search
-        or category = :category
+        OR category LIKE :search
         OR description LIKE :search
         OR location LIKE :search
     )";
-    $params[':search'] = "%$search%";
+    $params[':search'] =  "%$search%";
 }
-
-
 
 
 // Сортування
@@ -109,11 +123,11 @@ $sql .= " LIMIT 50";
 
 
 try {
+    error_log("SQL: " . $sql);
+    error_log("PARAMS: " . json_encode($params));
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
 
     // Форматуємо дані для фронтенду
     foreach ($events as &$event) {

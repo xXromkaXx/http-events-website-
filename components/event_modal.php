@@ -93,7 +93,7 @@
                             <span data-comments-count>0</span>
                         </button>
 
-                        <button class="event-action" data-action="save">
+                        <button class="event-action" data-action="save" data-event-id="">
                             <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 3h12a1.5 1.5 0 0 1 1.5 1.5v16.5L12 17l-7.5 4V4.5A1.5 1.5 0 0 1 6 3z"/>
                             </svg>
@@ -140,8 +140,8 @@
                 <span data-comments-count>0</span>
             </button>
 
-            <button class="event-action" data-action="save">
-                <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <button class="event-action" data-action="save" data-event-id="">
+            <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 3h12a1.5 1.5 0 0 1 1.5 1.5v16.5L12 17l-7.5 4V4.5A1.5 1.5 0 0 1 6 3z"/>
                 </svg>
             </button>

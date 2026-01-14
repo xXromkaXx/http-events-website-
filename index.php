@@ -106,7 +106,11 @@ require_once 'init.php';
             </div>
 
             <!-- Мої події -->
-            <a href="/my_events.php" class="my-events-btn">Мої події</a>
+            <button class="my-events-btn" id="myEventsBtn">
+                Мої події
+            </button>
+
+
         </div>
 
         <!-- Місце для подій -->
@@ -131,5 +135,9 @@ include 'includes/footer.php';
 <script src="assets/js/main.js"></script>
 <script src="assets/js/events.js"></script>
 <script src="assets/js/modal.js"></script>
+<script>
+    window.isLoggedIn = <?= isset($_SESSION['user']) ? 'true' : 'false' ?>;
+</script>
+
 </body>
 </html>

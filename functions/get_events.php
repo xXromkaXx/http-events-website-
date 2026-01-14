@@ -7,6 +7,8 @@ $pdo = getPDO();
 $filter = $_GET['filter'] ?? 'Усі';
 $search = trim($_GET['search'] ?? '');
 
+
+
 $sql = "SELECT 
             events.*, 
             users.username 

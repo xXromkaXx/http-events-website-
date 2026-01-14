@@ -11,18 +11,17 @@ if (!isset($_SESSION['user']['id'])) {
 $hideCreator = true;
 $userId = $_SESSION['user']['id'];
 
+
 $successMessage = $_SESSION['success'] ?? '';
 $errorMessage = $_SESSION['error'] ?? '';
 unset($_SESSION['success']);
 unset($_SESSION['error']);
 
-try {
-    $stmt = $pdo->prepare("SELECT * FROM events WHERE user_id = :user_id ORDER BY event_date DESC");
-    $stmt->execute([':user_id' => $userId]);
-    $myEvents = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Помилка при отриманні подій: " . htmlspecialchars($e->getMessage()));
-}
+// Кількість МОЇХ подій
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE user_id = ?");
+$stmt->execute([$userId]);
+$myEventsCount = (int)$stmt->fetchColumn();
+
 ?>
 <!DOCTYPE html>
 <html lang="uk">
@@ -69,7 +68,7 @@ try {
                     <!-- Статистика -->
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <span class="stat-count"><?= count($myEvents) ?></span>
+                            <span class="stat-count"><?= $myEventsCount ?></span>
                             <span class="stat-label">Подій</span>
                         </div>
                         <div class="stat-item">
@@ -97,9 +96,13 @@ try {
                     <i class="fas fa-edit"></i>
                     Редагувати профіль
                 </a>
-                <a href="#" class="btn-secondary">
+                <a href="?archive=1" class="btn-secondary">
                     <i class="fas fa-archive"></i>
-                    Переглянути архів
+                    Архів подій
+                </a>
+                <a href="logout.php" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Вийти
                 </a>
             </div>
         </div>
@@ -107,19 +110,24 @@ try {
         <!-- Таби для подій -->
         <div class="events-section">
             <div class="events-tabs">
-                <div class="tab-item active">
-                    <i class="fas fa-th"></i>
-                    мої події
-                </div>
-                <div class="tab-item">
-                    <i class="fas fa-bookmark"></i>
-                    Збережені
-                </div>
-                <div class="tab-item">
-                    <i class="fas fa-tag"></i>
-                    Позначені
-                </div>
+                <button class="tab-item" data-tab="my">Мої</button>
+                <button class="tab-item" data-tab="saved">Збережені</button>
+                <button class="tab-item" data-tab="participating">Беру участь</button>
             </div>
+
+                <div class="events-grid" id="profileEvents">
+                    <!-- AJAX сюди підвантажить event_card -->
+                    <div class="events-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Завантаження подій...</p>
+                    </div>
+                </div>
+
+                <div class="events-empty" style="display: none;">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Подій ще немає</p>
+                    <a href="/event_form.php" class="btn-create-first">Створити першу подію</a>
+                </div>
         </div>
     </div>
 
@@ -141,19 +149,8 @@ try {
         </div>
     <?php endif; ?>
 
-    <div class="events-grid">
-        <?php if ($myEvents): ?>
-            <?php foreach ($myEvents as $event): ?>
-                <?php $showEditDelete = true; ?>
-                <?php include 'components/event_card.php'; ?>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="no-events-message">
-                <p>У вас ще немає створених подій.</p>
-                <a href="/event_form.php" class="btn-create-first">Створити першу подію</a>
-            </div>
-        <?php endif; ?>
-    </div>
+
+
 </main>
 
 <?php

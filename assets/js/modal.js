@@ -602,10 +602,50 @@ class UniversalModalManager {
             this.loadStats(eventId)
         ]);
 
-        this.setupSave(eventId);
+        this.bindSaveButtons(eventId);
+        this.loadSaveState(eventId);
+
 
     }
-     getActiveAuthorElements() {
+    bindSaveButtons(eventId) {
+        document.querySelectorAll('[data-action="save"]').forEach(btn => {
+            btn.dataset.eventId = eventId;
+
+            btn.onclick = async () => {
+                const id = btn.dataset.eventId;
+
+                const res = await fetch('/ajax/save_event.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ event_id: id })
+                });
+
+                const data = await res.json();
+
+                document.querySelectorAll(
+                    `[data-action="save"][data-event-id="${id}"]`
+                ).forEach(b => {
+                    b.classList.toggle('saved', data.saved);
+                });
+            };
+        });
+    }
+
+    async loadSaveState(eventId) {
+        try {
+            const res = await fetch(`/ajax/is_saved.php?event_id=${eventId}`);
+            const data = await res.json();
+
+            document.querySelectorAll('[data-action="save"]').forEach(btn => {
+                btn.classList.toggle('saved', data.saved);
+            });
+        } catch (e) {
+            console.error('Load save state error', e);
+        }
+    }
+
+
+    getActiveAuthorElements() {
         const isMobile = window.matchMedia('(max-width: 900px)').matches;
 
         return {
@@ -1084,7 +1124,6 @@ class UniversalModalManager {
                 }
             }
 
-            if (action === 'save') this.toggleSave();
             if (action === 'share') this.shareEventMobile();
         };
 
@@ -1158,22 +1197,6 @@ class UniversalModalManager {
         });
     }
 
-    toggleSave() {
-        const btns = document.querySelectorAll('[data-action="save"]');
-        const saved = JSON.parse(localStorage.getItem('savedEvents') || '[]');
-
-        btns.forEach(btn => btn.classList.toggle('saved'));
-
-        if (saved.includes(this.currentEventId)) {
-            localStorage.setItem(
-                'savedEvents',
-                JSON.stringify(saved.filter(id => id !== this.currentEventId))
-            );
-        } else {
-            saved.push(this.currentEventId);
-            localStorage.setItem('savedEvents', JSON.stringify(saved));
-        }
-    }
 
 
     async sendComment() {
@@ -1228,27 +1251,7 @@ class UniversalModalManager {
     }
 
 
-    setupSave(eventId) {
-        const btn = document.getElementById('saveBtn');
-        if (!btn) return;
 
-        const saved = JSON.parse(localStorage.getItem('savedEvents') || '[]');
-        btn.classList.toggle('saved', saved.includes(eventId));
-
-        btn.onclick = () => {
-            let list = JSON.parse(localStorage.getItem('savedEvents') || '[]');
-
-            if (list.includes(eventId)) {
-                list = list.filter(id => id !== eventId);
-                btn.classList.remove('saved');
-            } else {
-                list.push(eventId);
-                btn.classList.add('saved');
-            }
-
-            localStorage.setItem('savedEvents', JSON.stringify(list));
-        };
-    }
 
 }
 

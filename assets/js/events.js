@@ -4,7 +4,9 @@ class EventsManager {
             category: 'Усі',
             date: 'all',
             location: '',
-            search: ''
+            search: '',
+            my: false,
+            excludeMy: true
         };
         this.isLoading = false;
         this.init();
@@ -13,6 +15,48 @@ class EventsManager {
     init() {
         this.setupEventListeners();
         this.loadEvents();
+        this.setupProfileTabs();
+    }
+    setupProfileTabs() {
+        const tabs = document.querySelectorAll('.tab-item');
+        const container = document.getElementById('profileEvents');
+
+        // якщо це не сторінка профілю — нічого не робимо
+        if (!tabs.length || !container) return;
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+
+                // активний таб (стилі)
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // показуємо лоадер
+                container.innerHTML = `
+                <div class="events-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Завантаження подій...</p>
+                </div>
+            `;
+
+                // вантажимо події
+                this.loadProfileEvents(tab.dataset.tab);
+            });
+        });
+
+        // ⬅️ автоматично відкриваємо "Мої події"
+        tabs[0].click();
+    }
+    loadProfileEvents(type) {
+        fetch(`/ajax/profile_events.php?type=${type}`)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('profileEvents').innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById('profileEvents').innerHTML =
+                    '<div class="no-events">Помилка завантаження</div>';
+            });
     }
 
     setupEventListeners() {
@@ -129,6 +173,44 @@ class EventsManager {
                 this.removeFilter(type);
             }
         });
+
+        //мої події/усі
+        const myEventsBtn = document.getElementById('myEventsBtn');
+
+        if (myEventsBtn) {
+            myEventsBtn.addEventListener('click', () => {
+
+                // 🔁 якщо зараз "мої" → показуємо чужі
+                if (this.currentFilters.my) {
+                    this.currentFilters.my = false;
+                    this.currentFilters.excludeMy = true;
+
+                    myEventsBtn.classList.remove('active');
+                    myEventsBtn.textContent = 'Мої події';
+                }
+                // ➜ інакше вмикаємо "мої події"
+                else {
+                    this.currentFilters.my = true;
+                    this.currentFilters.excludeMy = false;
+
+                    // скидаємо інші фільтри
+                    this.currentFilters.category = 'Усі';
+                    this.currentFilters.date = 'all';
+                    this.currentFilters.location = '';
+                    this.currentFilters.search = '';
+
+                    this.updateActiveFilters();
+
+                    myEventsBtn.classList.add('active');
+                    myEventsBtn.textContent = 'Усі події';
+                }
+
+                this.loadEvents();
+            });
+        }
+
+
+
     }
 
     updateActiveFilters() {
@@ -211,7 +293,9 @@ class EventsManager {
         if (this.isLoading) return;
 
         this.isLoading = true;
-        const eventsContainer = document.getElementById('eventsContainer');
+        const eventsContainer =
+            document.getElementById('eventsContainer') ||
+            document.getElementById('profileEvents');
         const noEventsMessage = document.getElementById('noEventsMessage');
 
         if (eventsContainer) {
@@ -239,7 +323,16 @@ class EventsManager {
         if (this.currentFilters.search) {
             params.append('search', this.currentFilters.search);
         }
+        if (this.currentFilters.excludeMy && window.isLoggedIn) {
+            params.append('exclude_my', '1');
+        }
 
+        if (this.currentFilters.my) {
+            params.append('my', '1');
+        }
+        if (this.currentFilters.excludeMy) {
+            params.append('exclude_my', '1');
+        }
         // Додаємо параметр для випадкових подій, якщо немає фільтрів
         if (params.toString() === '') {
             params.append('random', '1');
@@ -247,10 +340,13 @@ class EventsManager {
 
         const url = 'events.php?' + params.toString();
 
+
+
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Помилка завантаження: ' + response.status);
+                    console.error('HTTP error:', response.status);
+                    return response.text().then(t => { throw new Error(t); });
                 }
                 return response.json();
             })
@@ -267,7 +363,9 @@ class EventsManager {
     }
 
     displayEvents(events) {
-        const eventsContainer = document.getElementById('eventsContainer');
+        const eventsContainer =
+            document.getElementById('eventsContainer') ||
+            document.getElementById('profileEvents');
         const noEventsMessage = document.getElementById('noEventsMessage');
 
         if (!eventsContainer || !noEventsMessage) return;
@@ -340,7 +438,8 @@ class EventsManager {
             category: 'Усі',
             date: 'all',
             location: '',
-            search: ''
+            search: '',
+            my: false
         };
 
         // Скидуємо UI
@@ -351,12 +450,21 @@ class EventsManager {
         document.getElementById('searchInput').value = '';
 
         this.updateActiveFilters();
+        this.currentFilters.my = false;
+        this.currentFilters.excludeMy = true;
         this.loadEvents();
+
 
         const filterMenu = document.getElementById('filterMenu');
         if (filterMenu) {
             filterMenu.style.display = 'none';
         }
+        const myEventsBtn = document.getElementById('myEventsBtn');
+        if (myEventsBtn) {
+            myEventsBtn.classList.remove('active');
+            myEventsBtn.textContent = 'Мої події';
+        }
+
     }
 
     escapeHtml(text) {
@@ -373,6 +481,26 @@ function clearFiltersAndShowAll() {
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', function() {
     window.eventsManager = new EventsManager();
+
+});
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.event-action[data-action="save"]');
+    if (!btn) return;
+
+    const eventId = btn.dataset.eventId;
+
+    fetch('/ajax/save_event.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_id: eventId })
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                btn.classList.toggle('saved');
+            }
+        });
 });

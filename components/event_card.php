@@ -47,7 +47,7 @@
             </p>
         <?php endif; ?>
 
-        <div class="event-actions">
+        <div class="event-profile-actions">
             <button class="btn-view" data-event-id="<?= $event['id'] ?>">
                 👁️ Детальніше
             </button>
