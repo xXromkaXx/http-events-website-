@@ -79,11 +79,23 @@
                     <div class="event-actions" id="eventActions">
 
                         <button class="event-action" data-action="like">
-                            <svg viewBox="0 0 24 24" class="icon">
-                                <svg viewBox="0 0 24 24" class="icon">
-                                    <path d="M12 21s-7-4.2-9.2-8.3C1 9 3.5 6 6.8 6c2 0 3.4 1.2 5.2 3 1.8-1.8 3.2-3 5.2-3C20.5 6 23 9 21.2 12.7 19 16.8 12 21 12 21z"/>
-                                </svg>
+                            <svg viewBox="0 0 24 24" class="icon hand-icon">
+                                <!-- Пальці руки -->
+                                <path d="M8 12V7a1 1 0 1 1 2 0v5" />
+                                <path d="M10 12V6a1 1 0 1 1 2 0v6" />
+                                <path d="M12 12V5a1 1 0 1 1 2 0v7" />
+                                <path d="M14 12V6a1 1 0 1 1 2 0v6" />
+
+                                <!-- Ладонь -->
+                                <path d="M8 12v4a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4v-3" />
+
+                                <!-- Галочка (з'являється при лайку) -->
+                                <path class="hand-check"
+                                      d="M9 16l2.5 2.5L16 14"
+                                      fill="none" />
+                            </svg>
                             <span data-likes-count>0</span>
+
                         </button>
 
                         <button class="event-action" data-action="comment">
@@ -126,12 +138,24 @@
         <div class="event-actions" id="eventActionsMob">
 
             <button class="event-action" data-action="like">
-                <svg viewBox="0 0 24 24" class="icon">
-                    <path d="M12 21s-7-4.2-9.2-8.3C1 9 3.5 6 6.8 6c2 0 3.4 1.2 5.2 3 1.8-1.8 3.2-3 5.2-3C20.5 6 23 9 21.2 12.7 19 16.8 12 21 12 21z"/>
-                </svg>
+                <svg viewBox="0 0 24 24" class="icon hand-icon">
+                    <!-- Пальці руки -->
+                    <path d="M8 12V7a1 1 0 1 1 2 0v5" />
+                    <path d="M10 12V6a1 1 0 1 1 2 0v6" />
+                    <path d="M12 12V5a1 1 0 1 1 2 0v7" />
+                    <path d="M14 12V6a1 1 0 1 1 2 0v6" />
 
+                    <!-- Ладонь -->
+                    <path d="M8 12v4a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4v-3" />
+
+                    <!-- Галочка (з'являється при лайку) -->
+                    <path class="hand-check"
+                          d="M9 16l2.5 2.5L16 14"
+                          fill="none" />
+                </svg>
                 <span data-likes-count>0</span>
             </button>
+
 
             <button class="event-action" data-action="comment">
                 <svg viewBox="0 0 24 24" class="icon">

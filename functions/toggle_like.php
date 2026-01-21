@@ -9,7 +9,24 @@ if (!isset($_SESSION['user']['id'])) {
 
 $eventId = (int)($_POST['event_id'] ?? 0);
 $userId  = (int)$_SESSION['user']['id'];
+if ($eventId <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Невірний ID події']);
+    exit;
+}
 
+// перевірка чи це власна подія
+$stmt = $pdo->prepare("SELECT user_id FROM events WHERE id = ?");
+$stmt->execute([$eventId]);
+$eventOwnerId = (int)$stmt->fetchColumn();
+
+if ($eventOwnerId === $userId) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'own_event',
+        'message' => 'Ця подія ваша'
+    ]);
+    exit;
+}
 /* перевірка */
 $stmt = $pdo->prepare("
     SELECT id FROM event_likes

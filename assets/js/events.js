@@ -44,21 +44,77 @@ class EventsManager {
             });
         });
 
-        // ⬅️ автоматично відкриваємо "Мої події"
-        tabs[0].click();
+        // Автоматично завантажуємо перший таб
+        if (tabs.length > 0) {
+            const firstTab = tabs[0];
+            firstTab.classList.add('active');
+            this.loadProfileEvents(firstTab.dataset.tab);
+        }
     }
     loadProfileEvents(type) {
+        const container = document.getElementById('profileEvents');
+        if (!container) return;
+
         fetch(`/ajax/profile_events.php?type=${type}`)
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById('profileEvents').innerHTML = html;
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.text();
             })
-            .catch(() => {
-                document.getElementById('profileEvents').innerHTML =
-                    '<div class="no-events">Помилка завантаження</div>';
+            .then(html => {
+                container.innerHTML = html;
+
+                // Якщо немає подій, показуємо відповідне повідомлення
+                if (html.includes('no-events') || html.trim() === '<div class="no-events">Подій немає</div>') {
+                    this.showEmptyProfileState(type);
+                }
+
+                // Ініціалізуємо модалки для нових карток
+                if (window.eventModalManager) {
+                    window.eventModalManager.init();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading profile events:', error);
+                container.innerHTML = `
+                <div class="no-events">
+                    <p>❌ Помилка завантаження подій</p>
+                    <button onclick="eventsManager.loadProfileEvents('${type}')">Спробувати знову</button>
+                </div>
+            `;
             });
     }
+    showEmptyProfileState(type) {
+        const container = document.getElementById('profileEvents');
+        if (!container) return;
 
+        let message = '';
+        let button = '';
+
+        switch(type) {
+            case 'my':
+                message = 'Ви ще не створили жодної події';
+                button = '<a href="/event_form.php" class="btn-create-first">Створити першу подію</a>';
+                break;
+            case 'saved':
+                message = 'У вас немає збережених подій';
+                button = '<a href="/events.php" class="btn-create-first">Знайти події для збереження</a>';
+                break;
+            case 'participating':
+                message = 'Ви ще не взяли участь у жодній події';
+                button = '<a href="/events.php" class="btn-create-first">Знайти події для участі</a>';
+                break;
+        }
+
+        container.innerHTML = `
+        <div class="no-events">
+            <div class="no-events-icon">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <h3>${message}</h3>
+            ${button}
+        </div>
+    `;
+    }
     setupEventListeners() {
         const filterBtn = document.getElementById('filterBtn');
         const filterMenu = document.getElementById('filterMenu');

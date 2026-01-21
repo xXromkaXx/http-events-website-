@@ -351,11 +351,12 @@ class UniversalModalManager {
                 .forEach(el => el.textContent = data.comments_count || 0);
 
             // всі кнопки лайку
-            document.querySelectorAll('[data-like]')
+            document.querySelectorAll('[data-action="like"]')
                 .forEach(btn => {
                     btn.classList.toggle('liked', data.is_liked);
                     btn.classList.toggle('active', data.is_liked);
                 });
+
 
         } catch (e) {
             console.error('Помилка статистики:', e);
@@ -1149,6 +1150,14 @@ class UniversalModalManager {
     async toggleLikeUnified() {
         if (!this.currentEventId) return;
 
+        // Знаходимо активну кнопку лайку (mobile або desktop)
+        const activePanel = window.innerWidth <= 768
+            ? document.getElementById('eventActionsMob')
+            : document.getElementById('eventActions');
+
+        const likeBtn = activePanel?.querySelector('[data-action="like"]');
+        const countElement = likeBtn?.querySelector('[data-likes-count]');
+
         try {
             const res = await fetch('/functions/toggle_like.php', {
                 method: 'POST',
@@ -1158,26 +1167,34 @@ class UniversalModalManager {
 
             const data = await res.json();
 
-            // ❌ Не авторизований
-            if (!data.success && data.error === 'auth') {
-                this.showNotification('Увійдіть, щоб ставити лайки ❤️', 'error');
-                return;
-            }
-
-            // ❌ Вже лайкнув
-            if (!data.success && data.error === 'already_liked') {
-                this.showNotification('Ви вже лайкнули цю подію', 'info');
-                return;
-            }
-
-            // ❌ Інша помилка
+            // Обробка всіх можливих помилок
             if (!data.success) {
-                this.showNotification('Помилка лайку', 'error');
+                switch (data.error) {
+                    case 'auth':
+                        this.showNotification('Увійдіть, щоб брати участь у подіях', 'error');
+                        break;
+                    case 'own_event':
+                        this.showNotification( (data.message || 'Не можна брати участь у власній події'), 'error');
+                        break;
+                    case 'already_liked':
+                        this.showNotification(data.message || 'Ви вже берете участь у цій події', 'info');
+                        break;
+                    default:
+                        this.showNotification(data.message || 'Помилка', 'error');
+                }
                 return;
             }
 
-            // ✅ Сервер підтвердив лайк
-            this.updateLikeUI(data.liked, data.likes_count);
+            // ✅ Сервер підтвердив лайк - оновлюємо UI
+            this.updateLikeUI(data.liked, data.count);
+
+            // Додаємо анімацію для числа
+            if (countElement) {
+                countElement.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    countElement.style.transform = 'scale(1)';
+                }, 200);
+            }
 
         } catch (e) {
             console.error('Like error:', e);
@@ -1185,13 +1202,19 @@ class UniversalModalManager {
         }
     }
     updateLikeUI(isLiked, count) {
-        // всі кнопки лайку (desktop + mobile)
+        // Всі кнопки лайку (desktop + mobile)
         document.querySelectorAll('[data-action="like"]').forEach(btn => {
+            // Перемикаємо класи
             btn.classList.toggle('liked', isLiked);
             btn.classList.toggle('active', isLiked);
+
+            // Якщо це кнопка з SVG іконкою руки, додаємо клас для анімації
+            if (btn.querySelector('.hand-icon')) {
+                btn.classList.toggle('liked', isLiked);
+            }
         });
 
-        // всі лічильники
+        // Всі лічильники
         document.querySelectorAll('[data-likes-count]').forEach(el => {
             el.textContent = count;
         });

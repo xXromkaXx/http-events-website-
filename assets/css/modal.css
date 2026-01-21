@@ -99,26 +99,35 @@ body.modal-open {
     height: 100%;
     object-fit: cover;
 }
-
+.event-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
 .event-action svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     fill: none;
-    color: white;
-    stroke: currentColor;
+    stroke: rgba(255, 255, 255, 0.7);
     stroke-width: 1.8;
-    transition: transform .2s ease, color .2s ease;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .event-action span{
     color: white;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
-.event-action.liked svg {
-    fill: rgb(255 0 56 / 76%);
-    stroke: rgb(228 10 82 / 76%);
-    transform: scale(1.1);
-}
-.event-action.liked {
-    color: var(--accent);
+.event-action:hover svg {
+    transform: translateY(-2px);
+    stroke: rgba(255, 255, 255, 0.9);
 }
 
 .event-action.saved svg {
@@ -130,7 +139,83 @@ body.modal-open {
 .event-action:active {
     transform: scale(0.95);
 }
+.event-action[data-action="like"] .hand-icon {
+    color: rgba(255,255,255,0.7);
+    transition: transform .25s ease, color .25s ease;
+}
 
+/* Активний стан (лайк) */
+.event-action.liked .hand-icon {
+    stroke: rgba(243, 211, 5, 0.8);;
+    transform: scale(1.1);
+    animation: handPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.event-action.liked span {
+    color: #f3d305;
+}
+/* Анімація галочки */
+.hand-check {
+    opacity: 0;
+    stroke: #29e103;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: scale(0.8);
+    transform-origin: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.event-action.liked .hand-check {
+    opacity: 1;
+    transform: scale(1);
+    animation: checkDraw 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+/* Активний ефект при натисканні */
+.event-action:active {
+    transform: scale(0.95);
+}
+
+/* Анімації */
+@keyframes handPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes checkDraw {
+    0% {
+        stroke-dasharray: 20;
+        stroke-dashoffset: 20;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dasharray: 20;
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes plusPop {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
 /* ===== Layout ===== */
 .event-layout {
     flex: 1;
@@ -1442,15 +1527,17 @@ top: 4%;
         border-radius: 50%;
         background: rgba(20,20,40,0.9);
         border: 1px solid rgba(255,255,255,.15);
-
+        gap: 2px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
+.event-action span{
+    font-size:9px;
+}
 
-
-    .close-modal {
+.close-modal {
         position: fixed;
         top: 12px;
         right: 12px;
@@ -1532,8 +1619,7 @@ top: 4%;
     .event-action {
         display: flex;
         align-items: center;
-        gap: 8px;
-
+        gap: 6px;
         background: none;
         border: none;
         padding: 6px 8px;

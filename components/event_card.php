@@ -20,7 +20,7 @@
              onerror="this.src='assets/img/default-event.jpg'">
     </div>
 
-    <div class="event-content">
+    <div class="event-info">
         <h3><?= htmlspecialchars($event['title']) ?></h3>
 
         <?php if (!empty($event['category'])): ?>
@@ -46,7 +46,7 @@
                                 : $event['description'])) ?>
             </p>
         <?php endif; ?>
-
+    </div>
         <div class="event-profile-actions">
             <button class="btn-view" data-event-id="<?= $event['id'] ?>">
                 👁️ Детальніше
@@ -67,5 +67,5 @@
             <?php endif; ?>
 
         </div>
-    </div>
+
 </div>

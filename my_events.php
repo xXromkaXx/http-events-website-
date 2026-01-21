@@ -27,7 +27,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
 <html lang="uk">
 <head>
     <meta charset="utf-8">
-    <title>Мої події | Events YC</title>
+    <title>Профіль | Events YC</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/modal.css">
@@ -96,10 +96,10 @@ $myEventsCount = (int)$stmt->fetchColumn();
                     <i class="fas fa-edit"></i>
                     Редагувати профіль
                 </a>
-                <a href="?archive=1" class="btn-secondary">
-                    <i class="fas fa-archive"></i>
-                    Архів подій
-                </a>
+<!--                <a href="?archive=1" class="btn-secondary">-->
+<!--                    <i class="fas fa-archive"></i>-->
+<!--                    Архів подій-->
+<!--                </a>-->
                 <a href="logout.php" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i>
                     Вийти
