@@ -2,7 +2,7 @@
 
 require_once 'init.php';
 require_once 'helpers.php';
-header('Content-Type: application/json; charset=utf-8');
+
 
 $pdo = getPDO();
 
@@ -132,9 +132,10 @@ try {
     // Форматуємо дані для фронтенду
     foreach ($events as &$event) {
         $event = formatEventForDisplay($event);
+        include __DIR__ . '/components/event_card.php';
     }
 
-    echo json_encode($events, JSON_UNESCAPED_UNICODE);
+   // echo json_encode($events, JSON_UNESCAPED_UNICODE);
 
 } catch (PDOException $e) {
     error_log("Помилка бази даних: " . $e->getMessage());

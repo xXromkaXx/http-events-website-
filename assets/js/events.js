@@ -17,6 +17,7 @@ class EventsManager {
         this.loadEvents();
         this.setupProfileTabs();
     }
+
     setupProfileTabs() {
         const tabs = document.querySelectorAll('.tab-item');
         const container = document.getElementById('profileEvents');
@@ -399,93 +400,15 @@ class EventsManager {
 
 
         fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    console.error('HTTP error:', response.status);
-                    return response.text().then(t => { throw new Error(t); });
-                }
-                return response.json();
-            })
-            .then(events => {
-                this.displayEvents(events);
-                this.isLoading = false;
-            })
-            .catch(error => {
-                if (eventsContainer) {
-                    eventsContainer.innerHTML = '<div class="error-message">Помилка завантаження подій. Спробуйте ще раз.</div>';
-                }
+            .then(r => r.text())
+            .then(html => {
+                eventsContainer.innerHTML = html;
                 this.isLoading = false;
             });
+
     }
 
-    displayEvents(events) {
-        const eventsContainer =
-            document.getElementById('eventsContainer') ||
-            document.getElementById('profileEvents');
-        const noEventsMessage = document.getElementById('noEventsMessage');
 
-        if (!eventsContainer || !noEventsMessage) return;
-
-        if (!Array.isArray(events)) {
-            eventsContainer.innerHTML = '<div class="error-message">Помилка формату даних</div>';
-            return;
-        }
-
-        if (events.length === 0) {
-            eventsContainer.style.display = 'none';
-            noEventsMessage.style.display = 'block';
-            return;
-        }
-
-        eventsContainer.style.display = 'grid';
-        noEventsMessage.style.display = 'none';
-        eventsContainer.innerHTML = '';
-
-        events.forEach(event => {
-            const eventCard = this.createEventCard(event);
-            eventsContainer.appendChild(eventCard);
-        });
-    }
-
-    createEventCard(event) {
-        const card = document.createElement('div');
-        card.className = 'event-card';
-
-        // Додаємо всі необхідні data-атрибути для модального вікна
-        card.setAttribute('data-id', event.id);
-        card.setAttribute('data-title', event.title || 'Без назви');
-        card.setAttribute('data-category', event.category || '');
-        card.setAttribute('data-location', event.location || '');
-        card.setAttribute('data-date', event.event_date || '');
-        card.setAttribute('data-time', event.event_time || '');
-        card.setAttribute('data-description', event.description || '');
-        card.setAttribute('data-image', event.image || 'assets/img/default-event.jpg');
-        card.setAttribute('data-creator', event.username || '');
-        card.setAttribute('data-avatar', event.avatar || 'assets/img/default-avatar.png');
-
-        const description = event.description_short ||
-            (event.description ? event.description.substring(0, 120) + '...' : 'Опис відсутній');
-
-        card.innerHTML = `
-            <div class="event-image">
-                <img src="${event.image || 'assets/img/default-event.jpg'}" alt="${event.title || 'Подія'}" 
-                     onerror="this.src='assets/img/default-event.jpg'">
-            </div>
-            <div class="event-info">
-                <h3>${this.escapeHtml(event.title || 'Без назви')}</h3>
-                <div class="event-category">${this.escapeHtml(event.category || 'Без категорії')}</div>
-                <div class="event-location">📍 ${this.escapeHtml(event.location || 'Без локації')}</div>
-                <div class="event-date">📅 ${this.escapeHtml(event.event_date || 'Дата не вказана')}</div>
-                <p class="event-description">${this.escapeHtml(description)}</p>
-            </div>
-            <div class="event-buttons">
-                <button class="btn-view" data-event-id="${event.id}">Детальніше</button>
-            </div>
-        `;
-
-
-        return card;
-    }
 
 
 
