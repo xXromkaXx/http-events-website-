@@ -14,8 +14,13 @@ class EventsManager {
 
     init() {
         this.setupEventListeners();
-        this.loadEvents();
-        this.setupProfileTabs();
+        if (document.getElementById('profileEvents')) {
+// 👤 Профіль → тільки профільні події
+            this.setupProfileTabs(); // тут всередині вже є автозагрузка "my"
+        } else {
+// 🌍 Головна сторінка → всі події
+            this.loadEvents();
+        }
     }
 
     setupProfileTabs() {
@@ -47,7 +52,7 @@ class EventsManager {
 
         // Автоматично завантажуємо перший таб
         if (tabs.length > 0) {
-            const firstTab = tabs[0];
+            const firstTab = document.querySelector('.tab-item[data-tab="my"]') || tabs[0];
             firstTab.classList.add('active');
             this.loadProfileEvents(firstTab.dataset.tab);
         }
@@ -348,11 +353,11 @@ class EventsManager {
 
     loadEvents() {
         if (this.isLoading) return;
-
+        if (document.getElementById('profileEvents')) {
+            return;
+        }
         this.isLoading = true;
-        const eventsContainer =
-            document.getElementById('eventsContainer') ||
-            document.getElementById('profileEvents');
+        const eventsContainer = document.getElementById('eventsContainer');
         const noEventsMessage = document.getElementById('noEventsMessage');
 
         if (eventsContainer) {
@@ -446,12 +451,7 @@ class EventsManager {
 
     }
 
-    escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+
 }
 
 function clearFiltersAndShowAll() {

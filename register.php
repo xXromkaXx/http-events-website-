@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($data['expires'] < time()) {
             $errors['general'] = 'Код прострочений';
-        } elseif ($_POST['verify_code'] != $data['code']) {
+        } elseif ((string)$_POST['verify_code'] !== (string)$data['code']) {
             $errors['general'] = 'Невірний код';
         } else {
 
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="form-group">
             <label for="password">Пароль <span class="required">*</span></label>
-            <input type="password" id="password" name="password"
+            <input type="password" id="password" name="password" autocomplete="new-password"
                    class="<?= !empty($errors['password']) ? 'field-error' : '' ?>"
                    placeholder="Мінімум 6 символів">
             <?php if (!empty($errors['password'])): ?>

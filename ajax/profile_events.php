@@ -52,8 +52,14 @@ if (!$events) {
 }
 
 foreach ($events as $event) {
-    // Додаємо прапорець, щоб приховати автора у картках
-    $hideCreator = true;
+
+    if ($type === 'my') {
+        $showEditDelete = true;   // ✏️ 🗑️ показуємо
+        $hideCreator = true;      // автора ховаємо
+    } else {
+        $showEditDelete = false;  // для saved / participating
+        $hideCreator = false;
+    }
     include '../components/event_card.php';
 }
 ?>

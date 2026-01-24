@@ -131,7 +131,7 @@ require_once 'init.php';
 include 'components/event_modal.php';
 include 'includes/footer.php';
 ?>
-
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="assets/js/events.js"></script>
 <script src="assets/js/modal.js"></script>

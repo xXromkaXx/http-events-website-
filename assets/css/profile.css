@@ -415,7 +415,7 @@
 /* Мобільні (до 480px) */
 @media (max-width: 480px) {
     .profile-info {
-        padding: 0 15px;
+        padding: 0 0;
         margin: 20px auto;
     }
 
@@ -500,21 +500,22 @@
         text-align: center;
     }
     .profile-avatar-name-stats {
-        background: #00082a26;
+
         border: 1px solid rgb(0 36 255 / 17%);
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 7px;
-        width: 100%;
+
+    }
+    body{
+        height: auto;
     }
 }
 
 /* Дуже малі екрани (до 360px) */
 @media (max-width: 360px) {
-    .profile-info {
-        padding: 0 12px;
-    }
+
 
     .profile-container {
         padding: 20px 15px;
@@ -573,89 +574,6 @@
     --text-secondary: #aaaaaa;
     --border-color: rgba(255, 255, 255, 0.1);
     --accent-color: #4dabf7;
-}
-
-/* Світла тема */
-@media (prefers-color-scheme: light) {
-    .profile-container {
-        background: rgba(248, 249, 250, 0.8);
-        border-color: rgba(0, 0, 0, 0.08);
-    }
-
-    .profile-name {
-        color: #212529;
-    }
-
-    .stat-count {
-        color: #212529;
-    }
-
-    .stat-label {
-        color: #6c757d;
-    }
-
-    .profile-bio {
-        color: #495057;
-    }
-
-    .bio-item {
-        color: #6c757d;
-    }
-
-    .btn-edit-profile {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
-        border-color: rgba(13, 110, 253, 0.2);
-    }
-
-    .btn-secondary {
-        background: rgba(108, 117, 125, 0.1);
-        color: #6c757d;
-        border-color: rgba(108, 117, 125, 0.2);
-    }
-
-    .btn-logout {
-        background: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-        border-color: rgba(220, 53, 69, 0.2);
-    }
-
-    .events-tabs {
-        border-bottom-color: rgba(0, 0, 0, 0.08);
-    }
-
-    .tab-item {
-        color: #6c757d;
-    }
-
-    .tab-item.active {
-        color: #212529;
-        background: rgba(0, 0, 0, 0.05);
-    }
-
-    .tab-item:hover:not(.active) {
-        color: #495057;
-        background: rgba(0, 0, 0, 0.02);
-    }
-
-    .events-empty {
-        background: rgba(248, 249, 250, 0.8);
-        border-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .events-empty i {
-        color: #adb5bd;
-    }
-
-    .events-empty p {
-        color: #6c757d;
-    }
-
-    .btn-create-first {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
-        border-color: rgba(13, 110, 253, 0.2);
-    }
 }
 
 /* Анімації */

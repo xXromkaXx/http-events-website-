@@ -1,3 +1,7 @@
+<?php
+$showEditDelete = $showEditDelete ?? false;
+$hideCreator = $hideCreator ?? false;
+?>
 <div class="event-card"
      data-id="<?= $event['id'] ?>"
      data-title="<?= htmlspecialchars($event['title']) ?>"
@@ -12,7 +16,10 @@
             data-avatar="<?= htmlspecialchars($event['avatar'] ?? 'assets/img/default-avatar.png') ?>"
         <?php endif; ?>
 >
+    <div class="event-flip">
 
+        <!-- FRONT (твій існуючий код 1 в 1) -->
+        <div class="event-front">
 
 <div class="event-image">
     <img src="<?= htmlspecialchars($event['image'] ?? 'assets/img/default-event.jpg') ?>"
@@ -67,5 +74,16 @@
             <?php endif; ?>
 
         </div>
+        </div>
 
+        <!-- BACK -->
+        <div class="event-back">
+            <p><?= htmlspecialchars($event['title']) ?></p>
+            <div class="event-qr"
+                 id="qr-<?= $event['id'] ?>">
+            </div>
+
+            <button class="btn-back">⬅ Назад</button>
+        </div>
+    </div>
 </div>

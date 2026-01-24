@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form action="login.php" method="POST" class="auth-form">
         <div class="form-group">
             <label for="email">Email <span class="required">*</span></label>
-            <input type="email" id="email" name="email"
+            <input type="email" id="email" name="email" autocomplete="email"
                    value="<?= htmlspecialchars($old['email'] ?? '') ?>"
                    class="<?= !empty($errors['email']) ? 'field-error' : '' ?>"
                    placeholder="your@email.com">
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="form-group">
             <label for="password">Пароль <span class="required">*</span></label>
-            <input type="password" id="password" name="password"
+            <input type="password" id="password" name="password" autocomplete="current-password"
                    class="<?= !empty($errors['password']) ? 'field-error' : '' ?>"
                    placeholder="Введіть ваш пароль">
             <?php if (!empty($errors['password'])): ?>

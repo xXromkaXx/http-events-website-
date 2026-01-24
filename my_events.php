@@ -110,7 +110,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
         <!-- Таби для подій -->
         <div class="events-section">
             <div class="events-tabs">
-                <button class="tab-item" data-tab="my">Мої</button>
+                <button class="tab-item active" data-tab="my">Мої</button>
                 <button class="tab-item" data-tab="saved">Збережені</button>
                 <button class="tab-item" data-tab="participating">Беру участь</button>
             </div>

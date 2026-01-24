@@ -6,11 +6,12 @@ class CreateEventManager {
         this.form = document.getElementById('createEventForm');
         this.categorySelect = document.getElementById('categorySelect');
         this.customCategory = document.getElementById('custom-category');
-
+        setTimeout(() => this.setupLivePreview(), 0);
         this.init();
     }
 
     init() {
+        this.setupLivePreview();
         this.setupCategoryToggle();
         this.setupImagePreview();
         this.setupDateValidation();
@@ -152,6 +153,54 @@ class CreateEventManager {
             }
         });
     }
+    setupLivePreview() {
+        const map = {
+            eventTitle: 'previewTitle',
+            eventLocation: 'previewLocation',
+            eventDescription: 'previewDescription'
+        };
+
+        Object.entries(map).forEach(([inputId, previewId]) => {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (!input || !preview) return;
+
+            const placeholder = preview.textContent;
+
+            input.addEventListener('input', () => {
+                let value = input.value.trim();
+
+                if (!value) {
+                    preview.textContent = placeholder;
+                    return;
+                }
+
+                if (inputId === 'eventLocation') {
+                    preview.textContent = `📍 ${value}`;
+                } else if (inputId === 'eventDescription') {
+                    preview.textContent = value.length > 120
+                        ? value.slice(0, 120) + '…'
+                        : value;
+                } else {
+                    preview.textContent = value;
+                }
+            });
+        });
+
+        // Дата
+        const dateInput = document.getElementById('eventDate');
+        const previewDate = document.getElementById('previewDate');
+
+        if (dateInput && previewDate) {
+            const placeholder = previewDate.textContent;
+
+            dateInput.addEventListener('input', () => {
+                previewDate.textContent = dateInput.value
+                    ? `📅 ${new Date(dateInput.value).toLocaleDateString('uk-UA')}`
+                    : placeholder;
+            });
+        }
+    }
 
 }
 function truncateText(text, maxLength = 120) {
@@ -169,95 +218,6 @@ function truncateText(text, maxLength = 120) {
 // Ініціалізація
 document.addEventListener('DOMContentLoaded', () => {
     new CreateEventManager();
-    /* ===== 1. УНІВЕРСАЛЬНЕ ОНОВЛЕННЯ ТЕКСТУ ===== */
-    ['eventTitle','eventLocation','categorySelect','eventDescription']
-        .forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.dispatchEvent(new Event('input'));
-        });
-    const map = {
-        eventTitle: 'previewTitle',
-        eventLocation: 'previewLocation',
-        categorySelect: 'previewCategory'
-    };
-
-    Object.keys(map).forEach(inputId => {
-        const categorySelect = document.getElementById('categorySelect');
-        const customCategory = document.getElementById('custom-category');
-        const previewCategory = document.getElementById('previewCategory');
-        const categoryPlaceholder = previewCategory.textContent;
-
-        function updateCategoryPreview() {
-            if (categorySelect.value === 'Інше' && customCategory.value.trim()) {
-                previewCategory.textContent = customCategory.value.trim();
-            } else if (categorySelect.value) {
-                previewCategory.textContent = categorySelect.value;
-            } else {
-                previewCategory.textContent = categoryPlaceholder;
-            }
-        }
-
-
-    });
-
-    /* ===== 2. ДАТА (ОКРЕМО, КРАСИВО) ===== */
-
-    const eventDate = document.getElementById('eventDate');
-    const previewDate = document.getElementById('previewDate');
-
-    if (eventDate && previewDate) {
-        eventDate.addEventListener('input', () => {
-            if (!eventDate.value) {
-                previewDate.textContent = '📅 Дата';
-                return;
-            }
-
-            const d = new Date(eventDate.value);
-            previewDate.textContent = `📅 ${d.toLocaleDateString('uk-UA')}`;
-        });
-    }
-
-    /* ===== 3. ФОТО ===== */
-
-    const imageInput = document.getElementById('eventImage');
-    const previewImage = document.getElementById('previewImage');
-
-
-    if (imageInput && previewImage) {
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-
-            reader.onload = e => {
-                previewImage.innerHTML = `<img src="${e.target.result}">`;
-            };
-            document.querySelector('.upload-btn').classList.toggle('has-file', imageInput.files.length > 0);
-            reader.readAsDataURL(file);
-        });
-    }
-
-
-    const descriptionInput = document.getElementById('eventDescription');
-    const previewDescription = document.getElementById('previewDescription');
-    const DESCRIPTION_LIMIT = 120;
-
-    if (descriptionInput && previewDescription) {
-        const placeholder = previewDescription.textContent;
-
-        descriptionInput.addEventListener('input', () => {
-            const text = descriptionInput.value.trim();
-
-            previewDescription.textContent = text
-                ? truncateText(text, DESCRIPTION_LIMIT)
-                : placeholder;
-        });
-    }
-
-
-
-
 });
 
 

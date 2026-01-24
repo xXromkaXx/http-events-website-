@@ -166,7 +166,7 @@ class UniversalModalManager {
         if (!this.currentEventId) return;
 
         const title = document.getElementById('modalTitle')?.textContent || 'Подія';
-        const url = `${window.location.origin}/event/${this.currentEventId}`;
+        const url = `${location.origin}/#event-${this.currentEventId}`;
 
         // Перевіряємо Web Share API
         if (navigator.share) {
@@ -499,9 +499,26 @@ class UniversalModalManager {
 
 
 
+    openViewModalWithRetry(eventId, retries = 20) {
+        const card = document.querySelector(`.event-card[data-id="${eventId}"]`);
+        if (card) {
+            this.openViewModal(eventId);
+            return;
+        }
+
+        if (retries <= 0) {
+            console.error('Подію не знайдено після очікування:', eventId);
+            return;
+        }
+
+        setTimeout(() => {
+            this.openViewModalWithRetry(eventId, retries - 1);
+        }, 100);
+    }
 
     async openViewModal(eventId) {
         this.currentEventId = eventId;
+
 
         const card = document.querySelector(`.event-card[data-id="${eventId}"]`);
         if (!card) {
@@ -589,6 +606,8 @@ class UniversalModalManager {
         document.body.classList.add('modal-open');
         document.querySelector('header')?.classList.add('hidden');
 
+        history.replaceState(null, '', `#event-${eventId}`);
+
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 modalContent.scrollTop = 0;
@@ -606,6 +625,7 @@ class UniversalModalManager {
         this.bindSaveButtons(eventId);
         this.loadSaveState(eventId);
 
+        this.isModalOpen = true;
 
     }
     bindSaveButtons(eventId) {
@@ -942,42 +962,30 @@ class UniversalModalManager {
 
     async deleteEvent(eventId, button) {
         try {
-            console.log('Видалення події ID:', eventId);
 
-            const url = `functions/delete_event.php?id=${eventId}&t=${Date.now()}`;
-            const response = await fetch(url);
+            const response = await fetch('functions/delete_event.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: eventId })
+            });
 
-            const responseText = await response.text();
-            console.log('Сира відповідь:', responseText);
+            const result = await response.json();
 
-            // Спрощена логіка перевірки успіху
-            if (response.ok && (responseText.includes('успішно') || responseText.includes('success'))) {
-                this.removeEventCard(eventId);
-                this.showNotification('Подію успішно видалено!', 'success');
-                return;
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Помилка при видаленні');
             }
 
-            // Спроба парсингу JSON
-            try {
-                const result = JSON.parse(responseText);
-                if (result.success) {
-                    this.removeEventCard(eventId);
-                    this.showNotification(result.message, 'success');
-                } else {
-                    throw new Error(result.message || 'Помилка при видаленні');
-                }
-            } catch (parseError) {
-                if (responseText.includes('<') && (responseText.includes('br') || responseText.includes('DOCTYPE'))) {
-                    throw new Error('Серверна помилка. Спробуйте пізніше.');
-                }
-                throw new Error('Невідома помилка сервера');
-            }
+            // ✅ успіх
+            this.removeEventCard(eventId);
+            this.showNotification('Подію успішно видалено!', 'success');
 
         } catch (error) {
             console.error('Помилка при видаленні:', error);
             this.showNotification(error.message, 'error');
 
-            // Відновлюємо кнопку
+            // 🔄 відновлюємо кнопку
             if (button) {
                 button.innerHTML = '🗑️ Видалити';
                 button.disabled = false;
@@ -1303,3 +1311,29 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const openFromHash = () => {
+        const hash = window.location.hash;
+
+        if (!hash.startsWith('#event-')) return;
+
+        const eventId = hash.replace('#event-', '');
+
+        // чекаємо поки картки зʼявляться
+        const tryOpen = () => {
+            const card = document.querySelector(`.event-card[data-id="${eventId}"]`);
+            if (!card || !window.eventModalManager) {
+                setTimeout(tryOpen, 100);
+                return;
+            }
+
+            window.eventModalManager.openViewModal(eventId);
+        };
+
+        tryOpen();
+    };
+
+    openFromHash();
+});

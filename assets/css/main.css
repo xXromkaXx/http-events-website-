@@ -1,9 +1,6 @@
 /* скрол для усіх */
 /* Chrome, Edge, Safari */
-html, body {
-    height: 100%;
-    overscroll-behavior: none;
-}
+
 
 body.modal-open {
     overflow: hidden;
