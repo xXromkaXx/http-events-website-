@@ -168,7 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $hasErrors) {
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-
     <title><?= $isEdit ? 'Редагувати подію' : 'Створити подію' ?></title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/create_event.css">

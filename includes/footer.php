@@ -2,7 +2,7 @@
     <div class="footer-content">
         <div class="footer-section">
             <h3>Events YC</h3>
-            <p>Клісно проведи час</p>
+            <p>Класно проведи час</p>
         </div>
         <div class="footer-section" id="contact" >
             <h4>Контакти</h4>

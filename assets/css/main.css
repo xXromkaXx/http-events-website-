@@ -2,9 +2,12 @@
 /* Chrome, Edge, Safari */
 
 
-body.modal-open {
-    overflow: hidden;
+html, body {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
+
 
 ::-webkit-scrollbar {
     width: 6px;

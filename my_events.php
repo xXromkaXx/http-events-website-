@@ -27,6 +27,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
 <html lang="uk">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профіль | Events YC</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/events.css">
@@ -84,9 +85,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
             </div>
             <!-- email -->
 
-            <div class="profile-bio">
-                <?= htmlspecialchars($_SESSION['user']['email']) ?>
-                <br>
+            <div class="profile-bio"><?= htmlspecialchars($_SESSION['user']['email'])?><br>
                 Зареєстровано: <?= htmlspecialchars($_SESSION['user']['created_at']) ?>
             </div>
 
@@ -157,7 +156,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
 include 'components/event_modal.php';
 include 'includes/footer.php';
 ?>
-
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="assets/js/events.js"></script>
 <script src="assets/js/modal.js"></script>

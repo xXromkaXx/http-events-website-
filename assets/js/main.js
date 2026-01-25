@@ -15,8 +15,6 @@ document.addEventListener('click', e => {
     flip.addEventListener('transitionend', function handler(e) {
         if (e.propertyName !== 'transform') return;
 
-        flip.removeEventListener('transitionend', handler);
-
         const qr = card.querySelector('.event-qr');
         if (!qr || qr.dataset.generated) return;
 

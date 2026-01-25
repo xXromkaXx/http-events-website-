@@ -109,7 +109,7 @@
 
 /* Біо */
 .profile-bio {
-    color: #bbb;
+    color: #d1cfcf;
     font-size: 14px;
     line-height: 1.5;
     text-align: center;
@@ -264,7 +264,7 @@
 
 .events-empty i {
     font-size: 36px;
-    color: #666;
+    color: #7c7b7b;
     margin-bottom: 15px;
     opacity: 0.7;
 }
@@ -458,7 +458,7 @@
     }
 
     .profile-bio {
-        font-size: 13px;
+        font-size: 14px;
         margin-bottom: 20px;
     }
 
@@ -481,17 +481,20 @@
     .btn-edit-profile,
     .btn-secondary,
     .btn-logout {
-        width: 100%;
-        max-width: 100%;
+
         justify-content: center;
         padding: 12px 20px;
     }
 
     .events-tabs {
-        flex-wrap: wrap;
+        gap: 0;
         justify-content: center;
+        width: 100%;
     }
-
+    .events-section{
+        margin: 0 0;
+        padding: 0;
+    }
     .tab-item {
         flex: 1;
         min-width: 140px;
@@ -500,16 +503,12 @@
         text-align: center;
     }
     .profile-avatar-name-stats {
-
-        border: 1px solid rgb(0 36 255 / 17%);
+        margin-bottom: 15px;
+        margin-top: 20px;
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 7px;
-
-    }
-    body{
-        height: auto;
     }
 }
 
@@ -551,7 +550,7 @@
     }
 
     .profile-bio {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .profile-actions {
@@ -571,7 +570,7 @@
 :root {
     --bg-primary: #1a1a1a;
     --text-primary: #ffffff;
-    --text-secondary: #aaaaaa;
+    --text-secondary: #bdbdbd;
     --border-color: rgba(255, 255, 255, 0.1);
     --accent-color: #4dabf7;
 }

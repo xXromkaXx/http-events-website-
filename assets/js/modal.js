@@ -164,84 +164,39 @@ class UniversalModalManager {
 
     shareEventMobile() {
         if (!this.currentEventId) return;
+        if (this.isShareFallbackOpen) return;
 
         const title = document.getElementById('modalTitle')?.textContent || 'Подія';
         const url = `${location.origin}/#event-${this.currentEventId}`;
 
-        // Перевіряємо Web Share API
+        // ✅ Якщо API є — тільки share
         if (navigator.share) {
             navigator.share({
                 title,
                 text: 'Подивись цю цікаву подію!',
                 url
-            }).catch(err => {
-                console.log('Помилка поділення через Web Share API:', err);
-                this.fallbackCopyToClipboard(url, title);
+            }).catch(() => {
+                // ❌ НІЧОГО не робимо
+                // Cancel / помилка / quirks Android
             });
-        } else {
-            // Фолбек метод копіювання
-            this.fallbackCopyToClipboard(url, title);
+            return;
         }
+
+        // ❗ fallback ТІЛЬКИ якщо API НЕМАЄ
+        this.isShareFallbackOpen = true;
+        this.showCopyFallbackDialog(url, title);
     }
 
-// Допоміжна функція для копіювання в буфер обміну
-    fallbackCopyToClipboard(text, title) {
-        // Метод 1: Використання Clipboard API (сучасний)
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(() => {
-                this.showNotification(`Посилання на подію "${title}" скопійовано!`, 'success');
-            }).catch(err => {
-                console.error('Clipboard API помилка:', err);
-                this.oldSchoolCopy(text, title);
-            });
-        } else {
-            // Метод 2: Старий метод (для старих браузерів/небезпечних контекстів)
-            this.oldSchoolCopy(text, title);
-        }
-    }
 
-// Старий метод копіювання
-    oldSchoolCopy(text, title) {
-        try {
-            // Створюємо тимчасовий textarea
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-
-            // Вибираємо текст
-            textArea.focus();
-            textArea.select();
-
-            // Копіюємо
-            const successful = document.execCommand('copy');
-
-            // Прибираємо textarea
-            document.body.removeChild(textArea);
-
-            if (successful) {
-                this.showNotification(`Посилання на подію "${title}" скопійовано!`, 'success');
-            } else {
-                this.showCopyFallbackDialog(text, title);
-            }
-        } catch (err) {
-            console.error('Старий метод копіювання не працює:', err);
-            this.showCopyFallbackDialog(text, title);
-        }
-    }
 
 // Діалог для ручного копіювання
     showCopyFallbackDialog(text, title) {
-        // Створюємо модалку для ручного копіювання
+        this.isShareFallbackOpen = true;
+
         const modal = document.createElement('div');
         modal.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background: rgba(0,0,0,0.8);
         display: flex;
         align-items: center;
@@ -258,83 +213,59 @@ class UniversalModalManager {
             max-width: 500px;
             width: 100%;
             border: 2px solid var(--accent);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         ">
-            <h3 style="margin: 0 0 16px 0; color: var(--accent);">Поділитися подією</h3>
-            <p style="margin: 0 0 12px 0; color: #fff; font-size: 14px;">
-                Скопіюйте посилання нижче:
-            </p>
+            <h3 style="margin:0 0 16px;color:var(--accent)">Поділитися подією</h3>
+            <p style="color:#fff;font-size:14px">Скопіюйте посилання нижче:</p>
+
             <div style="
                 background: rgba(255,255,255,0.1);
                 border-radius: 8px;
                 padding: 12px;
-                margin-bottom: 20px;
-                border: 1px solid rgba(255,255,255,0.2);
-                word-break: break-all;
-                color: #fff;
+                margin: 12px 0 20px;
+                color:#fff;
                 font-family: monospace;
-                font-size: 14px;
+                word-break: break-all;
                 user-select: all;
-                cursor: text;
             ">${text}</div>
-            <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button id="copyManuallyBtn" style="
-                    padding: 10px 20px;
-                    background: var(--accent);
-                    color: #000;
-                    border: none;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    cursor: pointer;
-                ">Скопіювати</button>
-                <button id="closeCopyDialog" style="
-                    padding: 10px 20px;
-                    background: rgba(255,255,255,0.1);
-                    color: #fff;
-                    border: 1px solid rgba(255,255,255,0.3);
-                    border-radius: 8px;
-                    cursor: pointer;
-                ">Закрити</button>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end">
+                <button id="copyManuallyBtn">Скопіювати</button>
+                <button id="closeCopyDialog">Закрити</button>
             </div>
         </div>
     `;
 
         document.body.appendChild(modal);
 
-        // Обробка копіювання
+        const close = () => {
+            this.isShareFallbackOpen = false;
+            modal.remove();
+        };
+
         modal.querySelector('#copyManuallyBtn').addEventListener('click', () => {
-            const textToCopy = text;
-            const textArea = document.createElement('textarea');
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.select();
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
 
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    this.showNotification(`Посилання на подію "${title}" скопійовано!`, 'success');
-                    document.body.removeChild(modal);
-                }
-            } catch (err) {
-                console.error('Не вдалося скопіювати:', err);
-                this.showNotification('Не вдалося скопіювати. Скопіюйте посилання вручну.', 'error');
+                document.execCommand('copy');
+                this.showNotification(`Посилання на подію "${title}" скопійовано!`, 'success');
+                close();
+            } catch (e) {
+                this.showNotification('Скопіюйте посилання вручну', 'error');
             }
 
-            document.body.removeChild(textArea);
+            ta.remove();
         });
 
-        // Обробка закриття
-        modal.querySelector('#closeCopyDialog').addEventListener('click', () => {
-            document.body.removeChild(modal);
-        });
+        modal.querySelector('#closeCopyDialog').addEventListener('click', close);
 
-        // Закриття по кліку на фон
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
+        modal.addEventListener('click', e => {
+            if (e.target === modal) close();
         });
     }
+
 
 // В методі loadStats додайте оновлення мобільних лічильників:
     async loadStats(eventId) {
