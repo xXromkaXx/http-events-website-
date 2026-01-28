@@ -68,7 +68,8 @@ $hideCreator = $hideCreator ?? false;
 
                 <button class="btn-delete"
                         data-event-id="<?= $event['id'] ?>"
-                        data-event-title="<?= htmlspecialchars($event['title']) ?>">
+                        data-event-title="<?= htmlspecialchars($event['title']) ?>"
+                        onclick="event.stopPropagation()">
                     🗑️ Видалити
                 </button>
             <?php endif; ?>
@@ -82,8 +83,6 @@ $hideCreator = $hideCreator ?? false;
             <div class="event-qr"
                  id="qr-<?= $event['id'] ?>">
             </div>
-
-            <button class="btn-back">⬅ Назад</button>
         </div>
     </div>
 </div>

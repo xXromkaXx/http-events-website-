@@ -9,8 +9,8 @@ $pdo = getPDO();
 // Отримуємо параметри фільтрів
 $category = $_GET['category'] ?? 'Усі';
 $date = $_GET['date'] ?? 'all';
-$location = trim($_GET['location'] ?? '');
 $search = trim($_GET['search'] ?? '');
+$location = trim($_GET['location'] ?? '');
 $random = isset($_GET['random']);
 
 $userId = $_SESSION['user']['id'] ?? null;
@@ -28,11 +28,11 @@ $params = [];
 
 
 // Фільтр по категорії
-if ($category !== 'Усі') {
+if ($category !== 'Усі' && empty($search)) {
     $sql .= " AND category = :category";
     $params[':category'] = $category;
-    error_log("Додано фільтр категорії: " . $category);
 }
+
 
 /* 🔥 МОЇ ПОДІЇ */
 if (isset($_GET['my']) && $_GET['my'] == '1' && $userId) {
@@ -90,12 +90,9 @@ if ($date !== 'all') {
             break;
     }
 }
-
-// Фільтр по місцю
-if (!empty($location)) {
+if (empty($search) && !empty($location)) {
     $sql .= " AND location LIKE :location";
     $params[':location'] = "%$location%";
-
 }
 
 // Пошук по тексту (НЕ залежить від великих/малих літер)
@@ -106,14 +103,15 @@ if (!empty($search)) {
         OR description LIKE :search
         OR location LIKE :search
     )";
-    $params[':search'] =  "%$search%";
+    $params[':search'] = "%$search%";
 }
+
+
 
 
 // Сортування
 if ($random) {
     $sql .= " ORDER BY RAND()";
-
 } else {
     $sql .= " ORDER BY event_date ASC, event_time ASC";
 }

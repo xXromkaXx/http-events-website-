@@ -1,8 +1,13 @@
 <?php
-session_start();
 require_once '../init.php';
+ini_set('display_errors', 0);
+error_reporting(0);
 
-header('Content-Type: application/json');
+
+
+header('Content-Type: application/json; charset=utf-8');
+
+$pdo = getPDO();
 
 if (!isset($_SESSION['user']['id'])) {
     http_response_code(401);
@@ -19,7 +24,6 @@ if (!filter_var($event_id, FILTER_VALIDATE_INT)) {
     exit;
 }
 
-// 🔐 Отримуємо подію
 $stmt = $pdo->prepare("SELECT user_id, image FROM events WHERE id = ?");
 $stmt->execute([$event_id]);
 $event = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,26 +34,24 @@ if (!$event) {
     exit;
 }
 
-// 🔐 Перевірка власника
 if ((int)$event['user_id'] !== (int)$_SESSION['user']['id']) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Недостатньо прав']);
     exit;
 }
 
-// 🔐 Безпечне видалення зображення
+// 🧹 видалення зображення
 if (!empty($event['image'])) {
     $path = realpath(__DIR__ . '/../' . $event['image']);
     $base = realpath(__DIR__ . '/../uploads');
 
-    if ($path && str_starts_with($path, $base)) {
+    if ($path && $base && strpos($path, $base) === 0 && file_exists($path)) {
         unlink($path);
     }
 }
 
-// 🔐 Видалення події
 $stmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
 $stmt->execute([$event_id]);
 
-echo json_encode(['success' => true, 'message' => 'Подію видалено']);
+echo json_encode(['success' => true]);
 exit;

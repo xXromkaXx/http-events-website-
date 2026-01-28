@@ -1,9 +1,10 @@
 // Універсальний менеджер модальних вікон для всіх сторінок
 class UniversalModalManager {
     constructor() {
+        this.isConfirmOpen = false;
         this.currentEventId = null;
         this.isModalOpen = false;
-        this.savedScrollY = 0;
+        //this.savedScrollY = 0;
         this.init();
     }
     setupMobileUI() {
@@ -296,7 +297,7 @@ class UniversalModalManager {
 
     setupEventListeners() {
         // Використовуємо делегування подій для всіх кнопок
-        document.addEventListener('click', (e) => {
+        document.addEventListener('pointerdown', (e) => {
             const target = e.target;
 
             // Кнопка "Детальніше"
@@ -321,15 +322,21 @@ class UniversalModalManager {
             }
 
             // Кнопка "Видалити"
-            if (target.classList.contains('btn-delete') || target.closest('.btn-delete')) {
-                const btn = target.classList.contains('btn-delete') ? target : target.closest('.btn-delete');
-                const eventId = btn.getAttribute('data-event-id');
-                const eventTitle = btn.getAttribute('data-event-title');
+            const btn = target.closest('.btn-delete');
+            if (btn) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const eventId = btn.dataset.eventId;
+                const eventTitle = btn.dataset.eventTitle;
+
                 if (eventId && eventTitle) {
+                    console.log(e.type);
+
                     this.confirmDelete(eventId, eventTitle, btn);
                 }
-                e.preventDefault();
             }
+
         });
 
         // Закриття по ESC
@@ -883,13 +890,25 @@ class UniversalModalManager {
     }
 
     confirmDelete(eventId, eventTitle, button) {
-        if (confirm(`Ви дійсно хочете видалити подію "${eventTitle}"?\nЦя дія незворотня.`)) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '🗑️ Видалення...';
-            button.disabled = true;
-            this.deleteEvent(eventId, button);
+        if (this.isConfirmOpen) return;   // 🔒 ГЛОБАЛЬНИЙ ЗАХИСТ
+        this.isConfirmOpen = true;
+
+        const ok = confirm(
+            `Ви дійсно хочете видалити подію "${eventTitle}"?\nЦя дія незворотня.`
+        );
+
+        if (!ok) {
+            this.isConfirmOpen = false;
+            return;
         }
+
+        button.innerHTML = '🗑️ Видалення...';
+        button.disabled = true;
+
+        this.deleteEvent(eventId, button);
     }
+
+
 
     async deleteEvent(eventId, button) {
         try {
@@ -921,6 +940,8 @@ class UniversalModalManager {
                 button.innerHTML = '🗑️ Видалити';
                 button.disabled = false;
             }
+        }finally {
+            this.isConfirmOpen = false;
         }
     }
 
@@ -1219,32 +1240,12 @@ class UniversalModalManager {
 
 // Ініціалізація універсального менеджера при завантаженні сторінки
 document.addEventListener('DOMContentLoaded', function() {
+    if (window.eventModalManager) {
+        console.warn('UniversalModalManager already initialized');
+        return;
+    }
     window.eventModalManager = new UniversalModalManager();
-});
 
-// Додаємо CSS для анімацій та сповіщень
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    .loading, .no-comments, .error {
-        text-align: center;
-        padding: 20px;
-        color: rgba(255,255,255,0.7);
-        font-size: 14px;
-    }
-    
-    .notification {
-        animation: slideIn 0.3s ease;
-    }
-`;
-document.head.appendChild(style);
-
-
-document.addEventListener('DOMContentLoaded', () => {
     const openFromHash = () => {
         const hash = window.location.hash;
 
@@ -1268,3 +1269,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     openFromHash();
 });
+
+// Додаємо CSS для анімацій та сповіщень
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .loading, .no-comments, .error {
+        text-align: center;
+        padding: 20px;
+        color: rgba(255,255,255,0.7);
+        font-size: 14px;
+    }
+    
+    .notification {
+        animation: slideIn 0.3s ease;
+    }
+`;
+document.head.appendChild(style);
+
