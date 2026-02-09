@@ -635,6 +635,14 @@ body {
         flex: 0 0 auto;
     }
 
+    .filter-menu {
+        left: 0;
+        transform: none;
+        min-width: 230px;
+        max-width: min(86vw, 270px);
+        padding: 8px;
+    }
+
 
     .filter-btn {
         padding: 6px 10px;
@@ -642,11 +650,45 @@ body {
         border-radius: 14px;
     }
 
-    .my-events-btn {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        border-radius: 14px;
+    .events-scope {
+        gap: 5px;
+    }
+
+    .events-scope-toggle {
+        padding: 3px;
+        border-radius: 12px;
+    }
+
+    .scope-btn {
+        min-width: 66px;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        border-radius: 10px;
         white-space: nowrap;
+    }
+
+    .events-scope-status {
+        font-size: 0.7rem;
+    }
+
+    .events-pagination {
+        gap: 8px;
+    }
+
+    .events-page-info {
+        width: 100%;
+        text-align: center;
+        order: -1;
+    }
+
+    .events-page-btn {
+        font-size: 0.75rem;
+        padding: 7px 10px;
+    }
+
+    .events-page-size-label,
+    .events-page-size-select {
+        font-size: 0.72rem;
     }
 
 
@@ -680,10 +722,24 @@ body {
         padding: 5px 10px;
     }
 
-    .filter-btn,
-    .my-events-btn {
+    .filter-btn {
         font-size: 0.75rem;
         padding: 5px 8px;
+    }
+
+    .scope-btn {
+        min-width: 58px;
+        font-size: 0.72rem;
+        padding: 5px 8px;
+    }
+
+    .events-page-btn {
+        font-size: 0.7rem;
+        padding: 6px 8px;
+    }
+
+    .events-page-info {
+        font-size: 0.72rem;
     }
 
     .nav-links a.active {

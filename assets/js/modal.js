@@ -539,23 +539,27 @@ class UniversalModalManager {
         if (elements.time) elements.time.textContent = eventData.time || 'Не вказано';
         if (elements.description) elements.description.innerHTML = this.formatDescription(eventData.description);
 
-        elements.description.addEventListener('click', (e) => {
-            if (e.target.classList.contains('read-more')) {
-                const shortText = e.target.closest('.short-text');
-                const moreText = shortText.nextElementSibling;
-                moreText.style.whiteSpace = 'pre-wrap';
-                shortText.style.display = 'none';
-                moreText.style.display = 'inline';
-            }
+        if (elements.description) {
+            elements.description.onclick = (e) => {
+                if (e.target.classList.contains('read-more')) {
+                    const shortText = e.target.closest('.short-text');
+                    const moreText = shortText?.nextElementSibling;
+                    if (!shortText || !moreText) return;
+                    moreText.style.whiteSpace = 'pre-wrap';
+                    shortText.style.display = 'none';
+                    moreText.style.display = 'inline';
+                }
 
-            if (e.target.classList.contains('read-less')) {
-                const moreText = e.target.closest('.more-text');
-                const shortText = moreText.previousElementSibling;
-                shortText.style.whiteSpace = 'normal';
-                moreText.style.display = 'none';
-                shortText.style.display = 'inline';
-            }
-        });
+                if (e.target.classList.contains('read-less')) {
+                    const moreText = e.target.closest('.more-text');
+                    const shortText = moreText?.previousElementSibling;
+                    if (!shortText || !moreText) return;
+                    shortText.style.whiteSpace = 'normal';
+                    moreText.style.display = 'none';
+                    shortText.style.display = 'inline';
+                }
+            };
+        }
 
 
 

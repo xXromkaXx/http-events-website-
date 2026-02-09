@@ -36,12 +36,5 @@ if (session_status() === PHP_SESSION_NONE) {
 
 
 <script>
-    window.addEventListener('scroll', function() {
-        const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 550) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
+
 </script>

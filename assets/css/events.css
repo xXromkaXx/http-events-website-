@@ -70,22 +70,42 @@
 .filter-menu {
     display: none;
     position: absolute;
-    top: 110%;
-    left: 0;
-    background: #0c0c1f;
-    border: 1px solid #2b2bff;
-    border-radius: 12px;
-    overflow: hidden;
-    min-width: 280px;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background:
+        radial-gradient(130% 160% at 0% 0%, rgba(255, 220, 80, 0.12), transparent 58%),
+        linear-gradient(160deg, rgba(12, 16, 37, 0.98), rgba(8, 12, 28, 0.98));
+    border: 1px solid rgba(86, 96, 255, 0.45);
+    border-radius: 14px;
+    overflow: visible;
+    min-width: 270px;
+    max-width: 290px;
     z-index: 1000;
-    padding: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(7px);
+    animation: filterMenuIn .2s ease;
+    max-height: 62vh;
+    overflow-y: auto;
+}
+
+@keyframes filterMenuIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 .filter-section {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(43, 43, 255, 0.3);
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid rgba(85, 95, 210, 0.25);
+    border-radius: 10px;
 }
 .filter-section:last-child {
     margin-bottom: 0;
@@ -94,11 +114,12 @@
 
 
 .filter-section h3 {
-    color: #ffd700;
-    font-size: 16px;
-    margin-bottom: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
+    color: #ffe17d;
+    font-size: 12px;
+    margin-bottom: 6px;
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: 0.2px;
 }
 
 /* Сітка для опцій фільтра */
@@ -111,16 +132,19 @@
 .filter-select {
     width: 100%;
     padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(43, 43, 255, 0.5);
-    border-radius: 6px;
-    color: #fff;
-    font-size: 13px;
+    background: rgba(4, 10, 33, 0.65);
+    border: 1px solid rgba(83, 92, 215, 0.45);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.94);
+    font-size: 12px;
     cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 .filter-select:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: rgba(255, 225, 90, 0.95);
+    box-shadow: 0 0 0 3px rgba(252, 219, 2, 0.22);
+    background: rgba(8, 16, 47, 0.85);
 }
 
 .filter-select option {
@@ -135,21 +159,22 @@
 
 .date-input,
 .location-input {
-    width: 100%;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(43, 43, 255, 0.5);
+    width: auto;
+    padding: 8px 10px;
+    background: rgba(4, 10, 33, 0.65);
+    border: 1px solid rgba(83, 92, 215, 0.45);
     border-radius: 8px;
     color: #fff;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.3s ease;
 }
 
 .date-input:focus,
 .location-input:focus {
     outline: none;
-    border-color: #ffd700;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    border-color: rgba(255, 225, 90, 0.95);
+    box-shadow: 0 0 0 3px rgba(252, 219, 2, 0.22);
+    background: rgba(8, 16, 47, 0.85);
 }
 
 .date-input::-webkit-calendar-picker-indicator {
@@ -160,8 +185,8 @@
 .date-label {
     display: block;
     color: #cfcfcf;
-    font-size: 12px;
-    margin-bottom: 5px;
+    font-size: 11px;
+    margin-bottom: 4px;
 }
 
 /* Опції фільтра */
@@ -194,40 +219,42 @@
 /* Кнопки фільтра */
 .filter-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .apply-filters,
 .clear-filters {
     flex: 1;
-    padding: 10px 15px;
+    padding: 8px 10px;
     border: none;
     border-radius: 8px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-size: 13px;
+    transition: all 0.24s ease;
+    text-transform: none;
+    font-size: 12px;
 }
 
 .apply-filters {
-    background: rgba(252, 219, 2, 0.71);
-    color: #111;
+    background: linear-gradient(135deg, rgba(255, 224, 70, 0.95), rgba(255, 193, 20, 0.96));
+    color: #0f1324;
+    box-shadow: 0 8px 18px rgba(252, 219, 2, 0.24);
 }
 
 .apply-filters:hover {
-    background: rgba(255, 230, 64, 1);
+    background: linear-gradient(135deg, rgba(255, 232, 92, 1), rgba(255, 200, 38, 1));
     transform: translateY(-2px);
 }
 
 .clear-filters {
-    background: rgba(164, 30, 30, 0.67);
-    color: white;
+    background: rgba(255, 90, 110, 0.14);
+    color: #ffd6dc;
+    border: 1px solid rgba(255, 120, 140, 0.36);
 }
 
 .clear-filters:hover {
-    background: rgba(210, 42, 42, 0.7);
+    background: rgba(255, 90, 110, 0.22);
     transform: translateY(-2px);
 }
 
@@ -347,25 +374,57 @@
     background: rgba(255, 255, 255, 0.75);
 }
 
-/* ==== кнопка Мої події ==== */
-.my-events-btn {
-    background: #ffea00;
-    border: none;
-    color: #000;
-    padding: 16px 36px;
-    border-radius: 20px;
-    font-weight: 900;
-    text-transform: lowercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
+/* ==== перемикач області подій ==== */
+.events-scope {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
 }
 
-.my-events-btn:hover {
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(252, 219, 2, 0.68);
-    transform: translateY(-2px);
+.events-scope-toggle {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 16px;
+    border: 1px solid rgba(56, 73, 255, 0.55);
+    background: rgba(8, 12, 34, 0.88);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.scope-btn {
+    min-width: 84px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    color: rgba(255, 255, 255, 0.88);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.22s ease;
+}
+
+.scope-btn:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.scope-btn.active {
+    background: linear-gradient(135deg, rgba(255, 225, 70, 0.98), rgba(255, 198, 25, 0.95));
+    color: #101321;
+    box-shadow: 0 6px 16px rgba(252, 219, 2, 0.32);
+}
+
+.scope-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.events-scope-status {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.2px;
 }
 
 /* ==== Сітка подій ==== */
@@ -429,6 +488,59 @@
     padding: 0 30px;
     margin: 0 auto;
     justify-content: center; /* Центрує всю сітку */
+}
+
+.events-pagination {
+    margin: 26px auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.events-page-btn {
+    border: 1px solid rgba(252, 219, 2, 0.5);
+    background: rgba(12, 18, 47, 0.92);
+    color: #ffe48a;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.events-page-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(19, 28, 71, 0.98);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
+.events-page-btn:disabled {
+    opacity: .5;
+    cursor: default;
+    transform: none;
+}
+
+.events-page-info {
+    color: rgba(255,255,255,0.86);
+    font-size: 13px;
+    padding: 0 6px;
+}
+
+.events-page-size-label {
+    color: rgba(255,255,255,0.72);
+    font-size: 12px;
+}
+
+.events-page-size-select {
+    border-radius: 10px;
+    border: 1px solid rgba(83, 92, 215, 0.45);
+    background: rgba(4, 10, 33, 0.8);
+    color: #fff;
+    padding: 8px 10px;
+    font-size: 12px;
 }
 
 .event-card {

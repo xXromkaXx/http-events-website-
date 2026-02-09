@@ -1,4 +1,23 @@
 <?php
+function columnExists(PDO $pdo, string $table, string $column): bool
+{
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND COLUMN_NAME = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$table, $column]);
+        return (bool)$stmt->fetchColumn();
+    } catch (Throwable $e) {
+        error_log('columnExists error: ' . $e->getMessage());
+        return false;
+    }
+}
+
 function ensureUsersProfileColumns(PDO $pdo): void
 {
     static $checked = false;
@@ -16,9 +35,7 @@ function ensureUsersProfileColumns(PDO $pdo): void
     try {
         $missing = [];
         foreach ($required as $name => $alterSql) {
-            $stmt = $pdo->prepare("SHOW COLUMNS FROM users LIKE ?");
-            $stmt->execute([$name]);
-            if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+            if (!columnExists($pdo, 'users', $name)) {
                 $missing[] = $alterSql;
             }
         }
@@ -47,9 +64,7 @@ function ensureUsersRoleColumns(PDO $pdo): void
     try {
         $missing = [];
         foreach ($required as $name => $alterSql) {
-            $stmt = $pdo->prepare("SHOW COLUMNS FROM users LIKE ?");
-            $stmt->execute([$name]);
-            if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+            if (!columnExists($pdo, 'users', $name)) {
                 $missing[] = $alterSql;
             }
         }
@@ -90,9 +105,7 @@ function ensureEventsModerationColumns(PDO $pdo): void
     try {
         $missing = [];
         foreach ($required as $name => $alterSql) {
-            $stmt = $pdo->prepare("SHOW COLUMNS FROM events LIKE ?");
-            $stmt->execute([$name]);
-            if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+            if (!columnExists($pdo, 'events', $name)) {
                 $missing[] = $alterSql;
             }
         }
@@ -101,10 +114,35 @@ function ensureEventsModerationColumns(PDO $pdo): void
             $pdo->exec("ALTER TABLE events " . implode(', ', $missing));
         }
 
+        $statusMetaStmt = $pdo->query("
+            SELECT DATA_TYPE, COLUMN_TYPE
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'events'
+              AND COLUMN_NAME = 'moderation_status'
+            LIMIT 1
+        ");
+        $statusMeta = $statusMetaStmt ? $statusMetaStmt->fetch(PDO::FETCH_ASSOC) : null;
+        if ($statusMeta) {
+            $dataType = strtolower((string)($statusMeta['DATA_TYPE'] ?? ''));
+            $columnType = strtolower((string)($statusMeta['COLUMN_TYPE'] ?? ''));
+
+            // Якщо у старій схемі ENUM без 'draft' — чернетка може ламатися і стати опублікованою.
+            // Переводимо колонку в VARCHAR, щоб підтримувати всі робочі стани.
+            if ($dataType === 'enum' && strpos($columnType, "'draft'") === false) {
+                $pdo->exec("
+                    ALTER TABLE events
+                    MODIFY COLUMN moderation_status VARCHAR(20) NOT NULL DEFAULT 'published'
+                ");
+            }
+        }
+
         $pdo->exec("
             UPDATE events
-            SET moderation_status = 'published'
-            WHERE moderation_status IS NULL OR moderation_status = ''
+            SET moderation_status = 'pending'
+            WHERE moderation_status IS NULL
+               OR moderation_status = ''
+               OR moderation_status NOT IN ('draft', 'pending', 'published', 'rejected')
         ");
     } catch (Throwable $e) {
         error_log('ensureEventsModerationColumns error: ' . $e->getMessage());

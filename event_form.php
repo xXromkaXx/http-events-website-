@@ -242,9 +242,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $hasErrors) {
                 <p class="event-description" id="previewDescription">
                     <?= htmlspecialchars(
                             !empty($formData['description'])
-                                    ? (mb_strlen($formData['description']) > 120
-                                    ? mb_substr($formData['description'], 0, 120) . '…'
-                                    : $formData['description'])
+                                    ? ((function_exists('mb_strlen') && function_exists('mb_substr'))
+                                        ? (mb_strlen($formData['description']) > 120
+                                            ? mb_substr($formData['description'], 0, 120) . '…'
+                                            : $formData['description'])
+                                        : (strlen($formData['description']) > 120
+                                            ? substr($formData['description'], 0, 120) . '…'
+                                            : $formData['description']))
                                     : 'Короткий опис події буде тут'
                     ) ?>
                 </p>

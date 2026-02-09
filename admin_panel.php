@@ -11,8 +11,18 @@ $flash = null;
 $action = $_POST['action'] ?? null;
 $commentUserId = (int)($_GET['comment_user_id'] ?? $_POST['comment_user_id'] ?? 0);
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action) {
     try {
+        $postedToken = (string)($_POST['csrf_token'] ?? '');
+        if (!hash_equals($csrfToken, $postedToken)) {
+            throw new RuntimeException('Невірний CSRF токен');
+        }
+
         switch ($action) {
             case 'event_publish':
                 $eventId = (int)($_POST['event_id'] ?? 0);
@@ -108,8 +118,8 @@ $pendingEvents = $pdo->query("
     SELECT e.id, e.title, e.event_date, e.location, e.moderation_status, e.rejection_reason, u.username
     FROM events e
     LEFT JOIN users u ON u.id = e.user_id
-    WHERE e.moderation_status IN ('pending','rejected','draft')
-    ORDER BY FIELD(e.moderation_status,'pending','rejected','draft'), e.id DESC
+    WHERE e.moderation_status = 'pending'
+    ORDER BY e.id DESC
     LIMIT 200
 ")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -183,11 +193,13 @@ if ($commentUserId > 0) {
                         </div>
                         <div class="admin-actions">
                             <form method="post">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                 <input type="hidden" name="action" value="organizer_approve">
                                 <input type="hidden" name="user_id" value="<?= (int)$row['id'] ?>">
                                 <button type="submit" class="ok">Підтвердити</button>
                             </form>
                             <form method="post">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                 <input type="hidden" name="action" value="organizer_reject">
                                 <input type="hidden" name="user_id" value="<?= (int)$row['id'] ?>">
                                 <button type="submit" class="bad">Відхилити</button>
@@ -218,16 +230,19 @@ if ($commentUserId > 0) {
                         </div>
                         <div class="admin-actions wide">
                             <form method="post">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                 <input type="hidden" name="action" value="event_publish">
                                 <input type="hidden" name="event_id" value="<?= (int)$row['id'] ?>">
                                 <button type="submit" class="ok">Опублікувати</button>
                             </form>
                             <form method="post">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                 <input type="hidden" name="action" value="event_to_pending">
                                 <input type="hidden" name="event_id" value="<?= (int)$row['id'] ?>">
                                 <button type="submit">На модерацію</button>
                             </form>
                             <form method="post" class="reject-form">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                 <input type="hidden" name="action" value="event_reject">
                                 <input type="hidden" name="event_id" value="<?= (int)$row['id'] ?>">
                                 <input type="text" name="reason" placeholder="Причина відхилення">
@@ -282,6 +297,7 @@ if ($commentUserId > 0) {
                             </div>
                             <div class="admin-actions">
                                 <form method="post">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                     <input type="hidden" name="action" value="comment_delete">
                                     <input type="hidden" name="comment_id" value="<?= (int)$row['id'] ?>">
                                     <input type="hidden" name="comment_user_id" value="<?= (int)$commentUserId ?>">

@@ -23,11 +23,14 @@ if ($filter !== 'Усі') {
 }
 if (!empty($search)) {
     $sql .= " AND (
-        title LIKE :search
-        OR description LIKE :search
-        OR location LIKE :search
+        title LIKE :search_title
+        OR description LIKE :search_description
+        OR location LIKE :search_location
     )";
-    $params[':search'] = "%$search%";
+    $searchLike = "%$search%";
+    $params[':search_title'] = $searchLike;
+    $params[':search_description'] = $searchLike;
+    $params[':search_location'] = $searchLike;
 }
 
 $sql .= " ORDER BY event_date ASC";

@@ -82,6 +82,11 @@ require_once 'init.php';
                     </div>
 
                     <div class="filter-section">
+                        <h3>📝 Назва події</h3>
+                        <input type="text" id="titleFilter" placeholder="Введіть назву..." class="location-input">
+                    </div>
+
+                    <div class="filter-section">
                         <h3>📍 Місце</h3>
                         <input type="text" id="locationFilter" placeholder="Введіть місце..." class="location-input">
                     </div>
@@ -105,10 +110,20 @@ require_once 'init.php';
                 <!-- Тут будуть відображатися активні фільтри -->
             </div>
 
-            <!-- Мої події -->
-            <button class="my-events-btn" id="myEventsBtn">
-                Мої події
-            </button>
+            <div class="events-scope">
+                <div class="events-scope-toggle" role="group" aria-label="Область подій">
+                    <button type="button" class="scope-btn active" id="scopeAllBtn">Усі</button>
+                    <button
+                        type="button"
+                        class="scope-btn"
+                        id="scopeMyBtn"
+                        <?= isset($_SESSION['user']) ? '' : 'disabled title="Увійдіть, щоб бачити свої події"' ?>
+                    >
+                        Мої
+                    </button>
+                </div>
+                <div class="events-scope-status" id="eventsScopeStatus">Зараз показано: усі події</div>
+            </div>
 
 
         </div>
@@ -116,6 +131,17 @@ require_once 'init.php';
         <!-- Місце для подій -->
         <div id="eventsContainer" class="events-grid">
             <div class="loading-message">Завантаження подій...</div>
+        </div>
+        <div class="events-pagination" id="eventsPagination" style="display:none;">
+            <button type="button" class="events-page-btn" id="eventsPrevBtn">← Назад</button>
+            <div class="events-page-info" id="eventsPageInfo"></div>
+            <button type="button" class="events-page-btn" id="eventsNextBtn">Вперед →</button>
+            <label class="events-page-size-label" for="eventsPageSize">На сторінці:</label>
+            <select id="eventsPageSize" class="events-page-size-select">
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="36">36</option>
+            </select>
         </div>
 
         <!-- Повідомлення про відсутність подій -->

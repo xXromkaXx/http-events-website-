@@ -3,17 +3,23 @@ class EventsManager {
         this.currentFilters = {
             category: 'Усі',
             date: 'all',
+            title: '',
             location: '',
             search: '',
             my: false,
             excludeMy: true
         };
         this.isLoading = false;
+        this.currentPage = 1;
+        this.pageSize = 12;
+        this.totalPages = 1;
+        this.totalResults = 0;
         this.init();
     }
 
     init() {
         this.setupEventListeners();
+        this.updateScopeToggle();
         if (document.getElementById('profileEvents')) {
 // 👤 Профіль → тільки профільні події
             this.setupProfileTabs(); // тут всередині вже є автозагрузка "my"
@@ -92,6 +98,7 @@ class EventsManager {
     showEmptyProfileState(type) {
         const container = document.getElementById('profileEvents');
         if (!container) return;
+        const base = window.BASE_URL || '';
 
         let message = '';
         let button = '';
@@ -99,15 +106,15 @@ class EventsManager {
         switch(type) {
             case 'my':
                 message = 'Ви ще не створили жодної події';
-                button = '<a href="event_form.php" class="btn-create-first">Створити першу подію</a>';
+                button = `<a href="${base}/event_form.php" class="btn-create-first">Створити першу подію</a>`;
                 break;
             case 'saved':
                 message = 'У вас немає збережених подій';
-                button = '<a href="events.php" class="btn-create-first">Знайти події для збереження</a>';
+                button = `<a href="${base}/index.php#eventsSection" class="btn-create-first">Знайти події для збереження</a>`;
                 break;
             case 'participating':
                 message = 'Ви ще не взяли участь у жодній події';
-                button = '<a href="events.php" class="btn-create-first">Знайти події для участі</a>';
+                button = `<a href="${base}/index.php#eventsSection" class="btn-create-first">Знайти події для участі</a>`;
                 break;
         }
 
@@ -174,6 +181,27 @@ class EventsManager {
             });
         }
 
+        const titleFilter = document.getElementById('titleFilter');
+        if (titleFilter) {
+            let titleTimeout;
+            titleFilter.addEventListener('input', () => {
+                clearTimeout(titleTimeout);
+                titleTimeout = setTimeout(() => {
+                    this.currentFilters.title = titleFilter.value.trim();
+                    this.updateActiveFilters();
+                }, 400);
+            });
+
+            titleFilter.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.currentFilters.title = titleFilter.value.trim();
+                    this.updateActiveFilters();
+                    this.loadEvents();
+                }
+            });
+        }
+
         // Пошук за місцем
         const locationFilter = document.getElementById('locationFilter');
         if (locationFilter) {
@@ -184,6 +212,15 @@ class EventsManager {
                     this.currentFilters.location = locationFilter.value.trim();
                     this.updateActiveFilters();
                 }, 500);
+            });
+
+            locationFilter.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.currentFilters.location = locationFilter.value.trim();
+                    this.updateActiveFilters();
+                    this.loadEvents();
+                }
             });
         }
 
@@ -236,43 +273,98 @@ class EventsManager {
             }
         });
 
-        //мої події/усі
-        const myEventsBtn = document.getElementById('myEventsBtn');
-
-        if (myEventsBtn) {
-            myEventsBtn.addEventListener('click', () => {
-
-                // 🔁 якщо зараз "мої" → показуємо чужі
-                if (this.currentFilters.my) {
-                    this.currentFilters.my = false;
-                    this.currentFilters.excludeMy = true;
-
-                    myEventsBtn.classList.remove('active');
-                    myEventsBtn.textContent = 'Мої події';
-                }
-                // ➜ інакше вмикаємо "мої події"
-                else {
-                    this.currentFilters.my = true;
-                    this.currentFilters.excludeMy = false;
-
-                    // скидаємо інші фільтри
-                    this.currentFilters.category = 'Усі';
-                    this.currentFilters.date = 'all';
-                    this.currentFilters.location = '';
-                    this.currentFilters.search = '';
-
-                    this.updateActiveFilters();
-
-                    myEventsBtn.classList.add('active');
-                    myEventsBtn.textContent = 'Усі події';
-                }
-
+        const scopeAllBtn = document.getElementById('scopeAllBtn');
+        const scopeMyBtn = document.getElementById('scopeMyBtn');
+        const prevBtn = document.getElementById('eventsPrevBtn');
+        const nextBtn = document.getElementById('eventsNextBtn');
+        const pageSizeSelect = document.getElementById('eventsPageSize');
+        if (scopeAllBtn) {
+            scopeAllBtn.addEventListener('click', () => {
+                this.setEventScope('all');
+            });
+        }
+        if (scopeMyBtn) {
+            scopeMyBtn.addEventListener('click', () => {
+                this.setEventScope('my');
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                this.goToPage(this.currentPage - 1);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                this.goToPage(this.currentPage + 1);
+            });
+        }
+        if (pageSizeSelect) {
+            pageSizeSelect.value = String(this.pageSize);
+            pageSizeSelect.addEventListener('change', () => {
+                const nextSize = parseInt(pageSizeSelect.value, 10) || 12;
+                this.pageSize = Math.max(12, Math.min(36, nextSize));
+                this.currentPage = 1;
                 this.loadEvents();
             });
         }
 
 
 
+    }
+
+    setEventScope(scope) {
+        if (scope === 'my') {
+            if (!window.isLoggedIn) {
+                alert('Увійдіть у профіль, щоб бачити свої події');
+                return;
+            }
+
+            this.currentFilters.my = true;
+            this.currentFilters.excludeMy = false;
+            this.currentFilters.category = 'Усі';
+            this.currentFilters.date = 'all';
+            this.currentFilters.title = '';
+            this.currentFilters.location = '';
+            this.currentFilters.search = '';
+
+            const categorySelect = document.getElementById('categorySelect');
+            const dateSelect = document.getElementById('dateSelect');
+            const dateFilter = document.getElementById('dateFilter');
+            const titleFilter = document.getElementById('titleFilter');
+            const locationFilter = document.getElementById('locationFilter');
+            const searchInput = document.getElementById('searchInput');
+
+            if (categorySelect) categorySelect.value = 'Усі';
+            if (dateSelect) dateSelect.value = 'all';
+            if (dateFilter) dateFilter.value = '';
+            if (titleFilter) titleFilter.value = '';
+            if (locationFilter) locationFilter.value = '';
+            if (searchInput) searchInput.value = '';
+        } else {
+            this.currentFilters.my = false;
+            this.currentFilters.excludeMy = true;
+        }
+
+        this.updateActiveFilters();
+        this.updateScopeToggle();
+        this.loadEvents();
+    }
+
+    updateScopeToggle() {
+        const scopeAllBtn = document.getElementById('scopeAllBtn');
+        const scopeMyBtn = document.getElementById('scopeMyBtn');
+        const scopeStatus = document.getElementById('eventsScopeStatus');
+        if (!scopeAllBtn || !scopeMyBtn) return;
+
+        const isMy = !!this.currentFilters.my;
+        scopeAllBtn.classList.toggle('active', !isMy);
+        scopeMyBtn.classList.toggle('active', isMy);
+
+        if (scopeStatus) {
+            scopeStatus.textContent = isMy
+                ? 'Зараз показано: мої події'
+                : 'Зараз показано: усі події';
+        }
     }
 
     updateActiveFilters() {
@@ -289,6 +381,10 @@ class EventsManager {
         if (this.currentFilters.date !== 'all') {
             let dateText = this.getDateDisplayText(this.currentFilters.date);
             this.addActiveFilter('date', dateText, 'Дата');
+        }
+
+        if (this.currentFilters.title) {
+            this.addActiveFilter('title', this.currentFilters.title, 'Назва');
         }
 
         if (this.currentFilters.location) {
@@ -341,6 +437,10 @@ class EventsManager {
                 this.currentFilters.location = '';
                 document.getElementById('locationFilter').value = '';
                 break;
+            case 'title':
+                this.currentFilters.title = '';
+                document.getElementById('titleFilter').value = '';
+                break;
             case 'search':
                 this.currentFilters.search = '';
                 document.getElementById('searchInput').value = '';
@@ -351,14 +451,63 @@ class EventsManager {
         this.loadEvents();
     }
 
+    parseEventsResponse(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        const meta = temp.querySelector('.events-meta');
+        let hasMore = false;
+        let page = 1;
+        let total = 0;
+        let totalPages = 1;
+
+        if (meta) {
+            hasMore = meta.dataset.hasMore === '1';
+            page = parseInt(meta.dataset.page || '1', 10) || 1;
+            total = parseInt(meta.dataset.total || '0', 10) || 0;
+            totalPages = parseInt(meta.dataset.totalPages || '1', 10) || 1;
+            meta.remove();
+        }
+
+        const outputHtml = temp.innerHTML.trim();
+        return { html: outputHtml, hasMore, page, total, totalPages };
+    }
+
+    updatePaginationUI() {
+        const wrap = document.getElementById('eventsPagination');
+        const prevBtn = document.getElementById('eventsPrevBtn');
+        const nextBtn = document.getElementById('eventsNextBtn');
+        const info = document.getElementById('eventsPageInfo');
+        if (!wrap || !prevBtn || !nextBtn || !info || document.getElementById('profileEvents')) return;
+
+        if (this.totalResults <= 0) {
+            wrap.style.display = 'none';
+            return;
+        }
+
+        wrap.style.display = 'flex';
+        prevBtn.disabled = this.currentPage <= 1 || this.isLoading;
+        nextBtn.disabled = this.currentPage >= this.totalPages || this.isLoading;
+        info.textContent = `Сторінка ${this.currentPage} / ${this.totalPages} • Знайдено: ${this.totalResults}`;
+    }
+
+    goToPage(page) {
+        const target = Math.max(1, Math.min(this.totalPages || 1, page));
+        if (target === this.currentPage || this.isLoading) return;
+        this.currentPage = target;
+        this.loadEvents();
+    }
+
     loadEvents() {
         if (this.isLoading) return;
         if (document.getElementById('profileEvents')) {
             return;
         }
+
         this.isLoading = true;
         const eventsContainer = document.getElementById('eventsContainer');
         const noEventsMessage = document.getElementById('noEventsMessage');
+        const prevBtn = document.getElementById('eventsPrevBtn');
+        const nextBtn = document.getElementById('eventsNextBtn');
 
         if (eventsContainer) {
             eventsContainer.innerHTML = '<div class="loading-message">Завантаження подій...</div>';
@@ -366,6 +515,8 @@ class EventsManager {
         if (noEventsMessage) {
             noEventsMessage.style.display = 'none';
         }
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
 
         // Формуємо параметри запиту
         const params = new URLSearchParams();
@@ -381,6 +532,9 @@ class EventsManager {
         if (this.currentFilters.location) {
             params.append('location', this.currentFilters.location);
         }
+        if (this.currentFilters.title) {
+            params.append('title', this.currentFilters.title);
+        }
 
         if (this.currentFilters.search) {
             params.append('search', this.currentFilters.search);
@@ -392,23 +546,46 @@ class EventsManager {
         if (this.currentFilters.my) {
             params.append('my', '1');
         }
-        if (this.currentFilters.excludeMy) {
-            params.append('exclude_my', '1');
-        }
-        // Додаємо параметр для випадкових подій, якщо немає фільтрів
-        if (params.toString() === '') {
-            params.append('random', '1');
-        }
+        params.append('page', String(this.currentPage));
+        params.append('limit', String(this.pageSize));
 
         const url = 'events.php?' + params.toString();
 
 
 
         fetch(url)
-            .then(r => r.text())
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Помилка завантаження подій');
+                }
+                return r.text();
+            })
             .then(html => {
-                eventsContainer.innerHTML = html;
+                const parsed = this.parseEventsResponse(html);
+                this.currentPage = parsed.page;
+                this.totalResults = parsed.total;
+                this.totalPages = parsed.totalPages;
+                eventsContainer.innerHTML = parsed.html || '<div class="no-events">Подій не знайдено</div>';
+                this.updatePaginationUI();
+            })
+            .catch((error) => {
+                console.error('loadEvents error:', error);
+                if (eventsContainer) {
+                    eventsContainer.innerHTML = `
+                        <div class="no-events">
+                            <p>❌ Помилка завантаження подій</p>
+                            <button onclick="window.eventsManager && window.eventsManager.loadEvents()">Спробувати знову</button>
+                        </div>
+                    `;
+                }
+                this.totalResults = 0;
+                this.totalPages = 1;
+                this.currentPage = 1;
+                this.updatePaginationUI();
+            })
+            .finally(() => {
                 this.isLoading = false;
+                this.updatePaginationUI();
             });
 
     }
@@ -421,6 +598,7 @@ class EventsManager {
         this.currentFilters = {
             category: 'Усі',
             date: 'all',
+            title: '',
             location: '',
             search: '',
             my: false
@@ -430,12 +608,17 @@ class EventsManager {
         document.getElementById('categorySelect').value = 'Усі';
         document.getElementById('dateSelect').value = 'all';
         document.getElementById('dateFilter').value = '';
+        document.getElementById('titleFilter').value = '';
         document.getElementById('locationFilter').value = '';
         document.getElementById('searchInput').value = '';
 
         this.updateActiveFilters();
         this.currentFilters.my = false;
         this.currentFilters.excludeMy = true;
+        this.currentPage = 1;
+        this.totalPages = 1;
+        this.totalResults = 0;
+        this.updateScopeToggle();
         this.loadEvents();
 
 
@@ -443,12 +626,6 @@ class EventsManager {
         if (filterMenu) {
             filterMenu.style.display = 'none';
         }
-        const myEventsBtn = document.getElementById('myEventsBtn');
-        if (myEventsBtn) {
-            myEventsBtn.classList.remove('active');
-            myEventsBtn.textContent = 'Мої події';
-        }
-
     }
 
 
@@ -464,22 +641,4 @@ function clearFiltersAndShowAll() {
 document.addEventListener('DOMContentLoaded', function() {
     window.eventsManager = new EventsManager();
 
-});
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.event-action[data-action="save"]');
-    if (!btn) return;
-
-    const eventId = btn.dataset.eventId;
-
-    fetch('ajax/save_event.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_id: eventId })
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                btn.classList.toggle('saved');
-            }
-        });
 });

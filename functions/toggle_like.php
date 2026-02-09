@@ -15,10 +15,33 @@ try {
         exit;
     }
 
-    // перевірка чи це власна подія
-    $stmt = $pdo->prepare("SELECT user_id FROM events WHERE id = ?");
+    // перевірка події
+    $stmt = $pdo->prepare("SELECT user_id, moderation_status FROM events WHERE id = ? LIMIT 1");
     $stmt->execute([$eventId]);
-    $eventOwnerId = (int)$stmt->fetchColumn();
+    $event = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$event) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'not_found',
+            'message' => 'Подію не знайдено'
+        ]);
+        exit;
+    }
+
+    $eventOwnerId = (int)$event['user_id'];
+    $userRole = (string)($_SESSION['user']['role'] ?? 'user');
+    $isAdmin = ($userRole === 'admin');
+    $isPublished = (($event['moderation_status'] ?? 'published') === 'published');
+
+    if (!$isPublished && !$isAdmin && $eventOwnerId !== $userId) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'forbidden',
+            'message' => 'Подія недоступна'
+        ]);
+        exit;
+    }
 
     if ($eventOwnerId === $userId) {
         echo json_encode([
