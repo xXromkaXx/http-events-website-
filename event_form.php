@@ -16,6 +16,8 @@ if (!isset($_SESSION['user'])) {
 $errorMessage = '';
 $successMessage = '';
 $user_id = $_SESSION['user']['id'];
+$userRole = $_SESSION['user']['role'] ?? 'user';
+$isAdmin = ($userRole === 'admin');
 $isEdit = false;
 $event = null;
 
@@ -49,6 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $location = trim($_POST['location']);
     $event_date = $_POST['event_date'] ?? '';
     $event_time = $_POST['event_time'] ?? null;
+    $submitMode = $_POST['submit_mode'] ?? 'publish';
+    $targetStatus = 'pending';
+    if ($submitMode === 'draft') {
+        $targetStatus = 'draft';
+    } elseif ($isAdmin) {
+        $targetStatus = 'published';
+    }
 
     if ($category === 'Інше' && $custom_category !== '') {
         $category = $custom_category;
@@ -120,7 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $event_date,
                         $event_time,
                         $imagePath,
-                        $location
+                        $location,
+                        $targetStatus
                 );
             } else {
                 $result = createEvent(
@@ -131,14 +141,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $event_date,
                         $event_time,
                         $imagePath,
-                        $location
+                        $location,
+                        $targetStatus
                 );
             }
 
             if ($result) {
-                $successMessage = $isEdit
-                        ? "✅ Подію оновлено"
-                        : "✅ Подію створено";
+                if ($targetStatus === 'draft') {
+                    $successMessage = "✅ Збережено як чернетку";
+                } elseif ($targetStatus === 'published') {
+                    $successMessage = $isEdit ? "✅ Подію оновлено і опубліковано" : "✅ Подію створено та опубліковано";
+                } else {
+                    $successMessage = $isEdit ? "✅ Подію оновлено і відправлено на модерацію" : "✅ Подію створено і відправлено на модерацію";
+                }
 
                 unset($_SESSION['form_data']);
             }
@@ -334,9 +349,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $hasErrors) {
             </div>
         </div>
 
-        <button type="submit">
-            <?= $isEdit ? 'Зберегти зміни' : 'Створити подію' ?>
-        </button>
+        <div style="display:flex; gap:10px; width:100%;">
+            <button type="submit" name="submit_mode" value="draft" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.25);">
+                Чернетка
+            </button>
+            <button type="submit" name="submit_mode" value="publish">
+                <?= $isEdit ? 'Зберегти і відправити' : 'Створити подію' ?>
+            </button>
+        </div>
     </form>
 
 </div>

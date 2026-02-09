@@ -19,6 +19,17 @@ $flashError = $_SESSION['error'] ?? null;
 
 unset($_SESSION['success'], $_SESSION['error']);
 
+ensureUsersProfileColumns($pdo);
+$hasCity = hasUsersColumn($pdo, 'city');
+$hasInstagram = hasUsersColumn($pdo, 'instagram');
+$hasBio = hasUsersColumn($pdo, 'bio');
+
+$stmtUser = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmtUser->execute([$_SESSION['user']['id']]);
+$freshUser = $stmtUser->fetch(PDO::FETCH_ASSOC);
+if ($freshUser) {
+    $_SESSION['user'] = $freshUser;
+}
 $user = $_SESSION['user'];
 
 /* === ОКРЕМІ МАСИВИ === */
@@ -34,11 +45,27 @@ $successPassword = '';
 /* ========================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (($_POST['action'] ?? '') === 'organizer_request') {
+        if (($_SESSION['user']['role'] ?? 'user') === 'admin' || ($_SESSION['user']['role'] ?? 'user') === 'organizer') {
+            $_SESSION['success'] = "Ваш акаунт вже має права організатора.";
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET organizer_status='pending' WHERE id=?");
+            $stmt->execute([$_SESSION['user']['id']]);
+            $_SESSION['user']['organizer_status'] = 'pending';
+            $_SESSION['success'] = "Заявку організатора відправлено на модерацію.";
+        }
+        header('Location: edit_profile.php');
+        exit;
+    }
+
 
     /* ===== ПРОФІЛЬ ===== */
     if ($_POST['action'] === 'profile') {
 
         $name = trim($_POST['name'] ?? '');
+        $city = trim($_POST['city'] ?? '');
+        $instagram = trim($_POST['instagram'] ?? '');
+        $bio = trim($_POST['bio'] ?? '');
 
         $avatarPath = $user['avatar'];
 
@@ -71,6 +98,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $phone = $phoneDigits;
             }
         }
+
+        if ($hasCity && $city !== '' && mb_strlen($city) > 120) {
+            $errorsProfile['city'] = "Місто занадто довге (макс. 120 символів)";
+        }
+
+        if ($hasInstagram && $instagram !== '' && mb_strlen($instagram) > 120) {
+            $errorsProfile['instagram'] = "Нік Instagram занадто довгий";
+        }
+
+        if ($hasBio && $bio !== '' && mb_strlen($bio) > 1000) {
+            $errorsProfile['bio'] = "Поле 'Про себе' до 1000 символів";
+        }
         /* AVATAR */
         if (!empty($_POST['cropped_avatar']) &&
                 preg_match('/^data:image\/jpeg;base64,/', $_POST['cropped_avatar'])) {
@@ -89,13 +128,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errorsProfile)) {
 
-            $stmt = $pdo->prepare(
-                    "UPDATE users SET username=?, phone=?, avatar=? WHERE id=?"
-            );
-            $stmt->execute([$name, $phone, $avatarPath, $user['id']]);
+            $set = ["username = ?", "phone = ?"];
+            $params = [$name, $phone];
+            if ($hasCity) {
+                $set[] = "city = ?";
+                $params[] = ($city ?: null);
+            }
+            if ($hasInstagram) {
+                $set[] = "instagram = ?";
+                $params[] = ($instagram ?: null);
+            }
+            if ($hasBio) {
+                $set[] = "bio = ?";
+                $params[] = ($bio ?: null);
+            }
+            $set[] = "avatar = ?";
+            $params[] = $avatarPath;
+            $params[] = $user['id'];
+
+            $stmt = $pdo->prepare("UPDATE users SET " . implode(', ', $set) . " WHERE id = ?");
+            $stmt->execute($params);
 
             $_SESSION['user']['username'] = $name;
             $_SESSION['user']['phone'] = $phone;
+            if ($hasCity) {
+                $_SESSION['user']['city'] = $city ?: null;
+            }
+            if ($hasInstagram) {
+                $_SESSION['user']['instagram'] = $instagram ?: null;
+            }
+            if ($hasBio) {
+                $_SESSION['user']['bio'] = $bio ?: null;
+            }
             $_SESSION['user']['avatar'] = $avatarPath;
 
             // 🔥 AJAX-відповідь
@@ -104,6 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'success' => true,
                         'username' => $name,
                         'phone' => $phone,
+                        'city' => $city,
+                        'instagram' => $instagram,
+                        'bio' => $bio,
                         'avatar' => $avatarPath
                 ]);
                 exit;
@@ -127,6 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'success' => true,
                     'username' => $name,
                     'phone' => $phone,
+                    'city' => $city,
+                    'instagram' => $instagram,
+                    'bio' => $bio,
                     'avatar' => $avatarPath
             ]);
             exit;
@@ -272,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$hash, $user['id']]);
 
             $_SESSION['success'] = "Пароль успішно змінено 🔐";
-            header('Location: profile_edit.php');
+            header('Location: edit_profile.php');
             exit;
         } else {
             $_SESSION['error'] = "Помилка зміни пароля";
@@ -290,23 +360,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Редагувати профіль</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/avatar_cropper.css">
+    <link rel="stylesheet" href="assets/css/profile_edit.css?v=<?= filemtime(__DIR__ . '/assets/css/profile_edit.css') ?>">
     <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css">
 
 
 </head>
-<body class="auth-page">
+<body class="auth-page profile-edit-page">
 
 <div class="profile-edit-container">
+    <div class="profile-edit-header">
+        <div>
+            <h2>Редагування профілю</h2>
+            <p>Оновіть ім'я, контакти та параметри безпеки акаунту.</p>
+        </div>
+        <a href="my_events.php?profile=1" class="back-link">← Назад до профілю</a>
+    </div>
 
-
-    <h2>Редагування профілю</h2>
-
-    <a href="my_events.php?profile=1" class="back-link">← Назад до профілю</a>
+    <?php if (!empty($flashSuccess)): ?>
+        <div class="profile-flash success"><?= htmlspecialchars($flashSuccess) ?></div>
+    <?php endif; ?>
+    <?php if (!empty($flashError)): ?>
+        <div class="profile-flash error"><?= htmlspecialchars($flashError) ?></div>
+    <?php endif; ?>
 
 
     <!-- ===== ПРОФІЛЬ ===== -->
     <div class="section-card primary">
-        <form method="POST" action="/edit_profile.php">
+        <form method="POST" action="<?= BASE_URL ?>/edit_profile.php">
             <input type="hidden" name="action" value="profile">
             <?php
             $currentAvatar = $user['avatar'];
@@ -380,12 +460,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             </div>
 
+            <?php if ($hasCity): ?>
+            <div class="profile-row <?= !empty($errorsProfile['city']) ? 'has-error' : '' ?>">
+                <span class="label">Місто</span>
+                <div class="field-wrapper">
+                    <span class="value"><?= htmlspecialchars($user['city'] ?? 'Не вказано') ?></span>
+                    <input
+                            type="text"
+                            name="city"
+                            class="edit-input <?= !empty($errorsProfile['city']) ? 'field-error' : '' ?>"
+                            value="<?= htmlspecialchars($user['city'] ?? '') ?>"
+                            maxlength="120"
+                    >
+                    <?php if (!empty($errorsProfile['city'])): ?>
+                        <div class="field-error-text"><?= htmlspecialchars($errorsProfile['city']) ?></div>
+                    <?php endif; ?>
+                </div>
+                <div class="actions">
+                    <button type="button" class="edit-btn">✏️</button>
+                    <button type="submit" class="save-btn">💾</button>
+                    <button type="button" class="cancel-btn">✖</button>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($hasInstagram): ?>
+            <div class="profile-row <?= !empty($errorsProfile['instagram']) ? 'has-error' : '' ?>">
+                <span class="label">Instagram</span>
+                <div class="field-wrapper">
+                    <span class="value"><?= htmlspecialchars($user['instagram'] ?? 'Не вказано') ?></span>
+                    <input
+                            type="text"
+                            name="instagram"
+                            class="edit-input <?= !empty($errorsProfile['instagram']) ? 'field-error' : '' ?>"
+                            value="<?= htmlspecialchars($user['instagram'] ?? '') ?>"
+                            maxlength="120"
+                            placeholder="@username"
+                    >
+                    <?php if (!empty($errorsProfile['instagram'])): ?>
+                        <div class="field-error-text"><?= htmlspecialchars($errorsProfile['instagram']) ?></div>
+                    <?php endif; ?>
+                </div>
+                <div class="actions">
+                    <button type="button" class="edit-btn">✏️</button>
+                    <button type="submit" class="save-btn">💾</button>
+                    <button type="button" class="cancel-btn">✖</button>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($hasBio): ?>
+            <div class="profile-row bio-row <?= !empty($errorsProfile['bio']) ? 'has-error' : '' ?>">
+                <span class="label">Про себе</span>
+                <div class="field-wrapper">
+                    <span class="value"><?= htmlspecialchars($user['bio'] ?? 'Не вказано') ?></span>
+                    <textarea
+                            name="bio"
+                            class="edit-input <?= !empty($errorsProfile['bio']) ? 'field-error' : '' ?>"
+                            rows="4"
+                            maxlength="1000"
+                            placeholder="Коротко про себе..."
+                    ><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+                    <?php if (!empty($errorsProfile['bio'])): ?>
+                        <div class="field-error-text"><?= htmlspecialchars($errorsProfile['bio']) ?></div>
+                    <?php endif; ?>
+                </div>
+                <div class="actions">
+                    <button type="button" class="edit-btn">✏️</button>
+                    <button type="submit" class="save-btn">💾</button>
+                    <button type="button" class="cancel-btn">✖</button>
+                </div>
+            </div>
+            <?php endif; ?>
+
         </form>
     </div>
 
     <!-- ===== БЕЗПЕКА ===== -->
     <div class="section-card security">
         <h3>🔐 Безпека акаунту</h3>
+
+        <form method="POST" class="security-form">
+            <h3>Статус організатора</h3>
+            <div class="security-row">
+                <label>Роль</label>
+                <strong><?= htmlspecialchars($_SESSION['user']['role'] ?? 'user') ?></strong>
+            </div>
+            <div class="security-row">
+                <label>Статус заявки</label>
+                <strong><?= htmlspecialchars($_SESSION['user']['organizer_status'] ?? 'none') ?></strong>
+            </div>
+            <?php if (($_SESSION['user']['role'] ?? 'user') === 'user' && (($_SESSION['user']['organizer_status'] ?? 'none') !== 'pending')): ?>
+                <input type="hidden" name="action" value="organizer_request">
+                <button class="auth-btn" type="submit">Подати заявку організатора</button>
+            <?php endif; ?>
+        </form>
 
         <form method="POST" id="emailForm" class="security-form">
 
@@ -473,4 +642,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-

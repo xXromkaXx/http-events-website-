@@ -1,7 +1,8 @@
 <?php
-session_start();
+
 require_once 'init.php';
 require_once 'helpers.php';
+ensureUsersProfileColumns($pdo);
 $isProfile = isset($_GET['profile']);
 
 if (!isset($_SESSION['user']['id'])) {
@@ -22,6 +23,25 @@ $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE user_id = ?");
 $stmt->execute([$userId]);
 $myEventsCount = (int)$stmt->fetchColumn();
 
+// Кількість користувачів, що беруть участь у моїх подіях
+$stmt = $pdo->prepare("
+    SELECT COUNT(DISTINCT el.user_id)
+    FROM event_likes el
+    JOIN events e ON e.id = el.event_id
+    WHERE e.user_id = ?
+");
+$stmt->execute([$userId]);
+$participantsCount = (int)$stmt->fetchColumn();
+
+// Моя участь у подіях (у скількох подіях беру участь)
+$stmt = $pdo->prepare("
+    SELECT COUNT(DISTINCT event_id)
+    FROM event_likes
+    WHERE user_id = ?
+");
+$stmt->execute([$userId]);
+$myParticipationCount = (int)$stmt->fetchColumn();
+
 ?>
 <!DOCTYPE html>
 <html lang="uk">
@@ -29,10 +49,10 @@ $myEventsCount = (int)$stmt->fetchColumn();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профіль | Events YC</title>
-    <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/events.css">
-    <link rel="stylesheet" href="assets/css/modal.css">
-    <link rel="stylesheet" href="assets/css/profile.css">
+    <link rel="stylesheet" href="assets/css/main.css?v=<?= filemtime(__DIR__ . '/assets/css/main.css') ?>">
+    <link rel="stylesheet" href="assets/css/events.css?v=<?= filemtime(__DIR__ . '/assets/css/events.css') ?>">
+    <link rel="stylesheet" href="assets/css/modal.css?v=<?= filemtime(__DIR__ . '/assets/css/modal.css') ?>">
+    <link rel="stylesheet" href="assets/css/profile.css?v=<?= filemtime(__DIR__ . '/assets/css/profile.css') ?>">
 
 </head>
 <body>
@@ -73,19 +93,29 @@ $myEventsCount = (int)$stmt->fetchColumn();
                             <span class="stat-label">Подій</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-count">0</span>
-                            <span class="stat-label">Підписники</span>
+                            <span class="stat-count"><?= $participantsCount ?></span>
+                            <span class="stat-label">Учасники</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-count">0</span>
-                            <span class="stat-label">Підписки</span>
+                            <span class="stat-count"><?= $myParticipationCount ?></span>
+                            <span class="stat-label">Участь</span>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- email -->
 
-            <div class="profile-bio"><?= htmlspecialchars($_SESSION['user']['email'])?><br>
+            <div class="profile-bio">
+                <?= htmlspecialchars($_SESSION['user']['email']) ?><br>
+                <?php if (!empty($_SESSION['user']['city'])): ?>
+                    Місто: <?= htmlspecialchars($_SESSION['user']['city']) ?><br>
+                <?php endif; ?>
+                <?php if (!empty($_SESSION['user']['instagram'])): ?>
+                    Instagram: @<?= htmlspecialchars(ltrim($_SESSION['user']['instagram'], '@')) ?><br>
+                <?php endif; ?>
+                <?php if (!empty($_SESSION['user']['bio'])): ?>
+                    Про себе: <?= nl2br(htmlspecialchars($_SESSION['user']['bio'])) ?><br>
+                <?php endif; ?>
                 Зареєстровано: <?= htmlspecialchars($_SESSION['user']['created_at']) ?>
             </div>
 
@@ -125,7 +155,7 @@ $myEventsCount = (int)$stmt->fetchColumn();
                 <div class="events-empty" style="display: none;">
                     <i class="fas fa-calendar-times"></i>
                     <p>Подій ще немає</p>
-                    <a href="/event_form.php" class="btn-create-first">Створити першу подію</a>
+                    <a href="<?= BASE_URL ?>/event_form.php" class="btn-create-first">Створити першу подію</a>
                 </div>
         </div>
     </div>
@@ -157,8 +187,8 @@ include 'components/event_modal.php';
 include 'includes/footer.php';
 ?>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-<script src="assets/js/main.js"></script>
-<script src="assets/js/events.js"></script>
-<script src="assets/js/modal.js"></script>
+<script src="assets/js/main.js?v=<?= filemtime(__DIR__ . '/assets/js/main.js') ?>"></script>
+<script src="assets/js/events.js?v=<?= filemtime(__DIR__ . '/assets/js/events.js') ?>"></script>
+<script src="assets/js/modal.js?v=<?= filemtime(__DIR__ . '/assets/js/modal.js') ?>"></script>
 </body>
 </html>

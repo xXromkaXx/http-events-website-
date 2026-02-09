@@ -4,6 +4,11 @@ class UniversalModalManager {
         this.isConfirmOpen = false;
         this.currentEventId = null;
         this.isModalOpen = false;
+        this.initialized = false;
+        this.commentSendBound = false;
+        this.commentDeleteBound = false;
+        this.isSendingComment = false;
+        this.deletingCommentIds = new Set();
         //this.savedScrollY = 0;
         this.init();
     }
@@ -16,14 +21,19 @@ class UniversalModalManager {
 
     }
     init() {
+        if (this.initialized) {
+            return;
+        }
 
         this.setupViewModal();
         this.setupEditModal();
         this.setupEventListeners();
         this.setupCommentSend();
+        this.setupCommentDelete();
         this.setupTouchGestures();
         this.setupMobileUI();
         this.setupActionButtons();
+        this.initialized = true;
 
     }
     escapeHtml(text) {
@@ -44,6 +54,19 @@ class UniversalModalManager {
 
         return `<span class="short-text">${shortText}<span class="read-more">… Більше</span></span><span class="more-text" style="display:none;">${fullText}<span class="read-less"> Менше</span></span>`;
 
+    }
+
+    buildCommentDeleteButton(comment) {
+        if (!comment || !comment.can_delete) return '';
+        return `<button type="button" class="comment-delete-btn" data-comment-id="${comment.id}" onclick="window.eventModalManager && window.eventModalManager.handleCommentDeleteClick(event, ${comment.id})" title="Видалити коментар">🗑️</button>`;
+    }
+
+    handleCommentDeleteClick(event, commentId) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.deleteComment(Number(commentId), event?.currentTarget || null);
     }
 
 
@@ -119,10 +142,11 @@ class UniversalModalManager {
             list.innerHTML = comments.map(comment => `
             <div class="mobile-comment">
                 <div class="mobile-comment-header">
-                    <strong>${comment.username || 'Користувач'}</strong>
+                    <strong>${this.escapeHtml(comment.username || 'Користувач')}</strong>
                     <span>${comment.created_at || 'сьогодні'}</span>
+                    ${this.buildCommentDeleteButton(comment)}
                 </div>
-                <div class="mobile-comment-text">${comment.content}</div>
+                <div class="mobile-comment-text">${this.escapeHtml(comment.content || '')}</div>
             </div>
         `).join('');
 
@@ -168,7 +192,7 @@ class UniversalModalManager {
         if (this.isShareFallbackOpen) return;
 
         const title = document.getElementById('modalTitle')?.textContent || 'Подія';
-        const url = `${location.origin}/#event-${this.currentEventId}`;
+        const url = `${location.origin}${location.pathname.replace(/\/[^/]*$/, '')}/#event-${this.currentEventId}`;
 
         // ✅ Якщо API є — тільки share
         if (navigator.share) {
@@ -186,6 +210,16 @@ class UniversalModalManager {
         // ❗ fallback ТІЛЬКИ якщо API НЕМАЄ
         this.isShareFallbackOpen = true;
         this.showCopyFallbackDialog(url, title);
+    }
+
+    downloadCalendarFile() {
+        if (!this.currentEventId) return;
+
+        const base = window.BASE_URL || '';
+        const url = `${base}/functions/download_ics.php?event_id=${encodeURIComponent(this.currentEventId)}`;
+
+        window.location.href = url;
+        this.showNotification('Файл календаря завантажується...', 'success');
     }
 
 
@@ -489,6 +523,7 @@ class UniversalModalManager {
             time: card.dataset.time || '',
             description: card.dataset.description || 'Опис відсутній',
             creator: card.dataset.creator,
+            creatorId: parseInt(card.dataset.creatorId || '0', 10),
             avatar: card.hasAttribute('data-avatar')
                 ? card.dataset.avatar
                 : 'assets/img/default-avatar.png'
@@ -534,6 +569,7 @@ class UniversalModalManager {
                 author.avatar.alt = `Аватар ${eventData.creator}`;
             }
             if (author.container) author.container.style.display = 'flex';
+            this.bindAuthorProfileLink(author.container, eventData.creatorId);
         } else {
             if (author.container) author.container.style.display = 'none';
         }
@@ -573,7 +609,7 @@ class UniversalModalManager {
             btn.onclick = async () => {
                 const id = btn.dataset.eventId;
 
-                const res = await fetch('/ajax/save_event.php', {
+                const res = await fetch('ajax/save_event.php', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ event_id: id })
@@ -592,7 +628,7 @@ class UniversalModalManager {
 
     async loadSaveState(eventId) {
         try {
-            const res = await fetch(`/ajax/is_saved.php?event_id=${eventId}`);
+            const res = await fetch(`ajax/is_saved.php?event_id=${eventId}`);
             const data = await res.json();
 
             document.querySelectorAll('[data-action="save"]').forEach(btn => {
@@ -617,6 +653,24 @@ class UniversalModalManager {
             name: document.getElementById(
                 isMobile ? 'modalAuthorNameMobile' : 'modalAuthorNameDesktop'
             )
+        };
+    }
+
+    bindAuthorProfileLink(container, creatorId) {
+        if (!container) return;
+
+        if (!creatorId || Number.isNaN(creatorId)) {
+            container.classList.remove('is-link');
+            container.onclick = null;
+            return;
+        }
+
+        container.classList.add('is-link');
+        container.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const base = window.BASE_URL || '';
+            window.location.href = `${base}/creator_profile.php?user_id=${creatorId}`;
         };
     }
 
@@ -902,7 +956,7 @@ class UniversalModalManager {
             return;
         }
 
-        button.innerHTML = '🗑️ Видалення...';
+        button.innerHTML = 'Видалення...';
         button.disabled = true;
 
         this.deleteEvent(eventId, button);
@@ -937,7 +991,7 @@ class UniversalModalManager {
 
             // 🔄 відновлюємо кнопку
             if (button) {
-                button.innerHTML = '🗑️ Видалити';
+                button.innerHTML = 'Видалити';
                 button.disabled = false;
             }
         }finally {
@@ -1033,10 +1087,11 @@ class UniversalModalManager {
             list.innerHTML = comments.map(c => `
                 <div class="comment">
                     <div class="comment-header">
-                        <span class="comment-author">${c.username || 'Анонім'}</span>
+                        <span class="comment-author">${this.escapeHtml(c.username || 'Анонім')}</span>
                         <span class="comment-time">${c.created_at || 'Нещодавно'}</span>
+                        ${this.buildCommentDeleteButton(c)}
                     </div>
-                    <p>${c.content || ''}</p>
+                    <p>${this.escapeHtml(c.content || '')}</p>
                 </div>
             `).join('');
 
@@ -1049,6 +1104,8 @@ class UniversalModalManager {
 
 
     setupCommentSend() {
+        if (this.commentSendBound) return;
+
         const btn = document.getElementById('sendComment');
         const input = document.getElementById('commentText');
 
@@ -1060,7 +1117,78 @@ class UniversalModalManager {
                 this.sendComment();
             }
         });
+        this.commentSendBound = true;
     }
+
+    setupCommentDelete() {
+        if (this.commentDeleteBound) return;
+
+        const handler = (e) => {
+            const btn = e.target.closest('.comment-delete-btn');
+            if (!btn) return;
+            if (btn.getAttribute('onclick')) return;
+
+            e.preventDefault();
+            const commentId = parseInt(btn.dataset.commentId, 10);
+            if (!commentId) return;
+
+            this.deleteComment(commentId, btn);
+        };
+
+        document.addEventListener('click', handler);
+        document.addEventListener('touchend', handler, { passive: false });
+
+        this.commentDeleteBound = true;
+    }
+
+    async deleteComment(commentId, button) {
+        if (this.deletingCommentIds.has(commentId)) return;
+
+        const ok = confirm('Видалити цей коментар?');
+        if (!ok) return;
+
+        this.deletingCommentIds.add(commentId);
+        const original = button?.innerHTML;
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '...';
+        }
+
+        try {
+            const res = await fetch('functions/delete_comment.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `comment_id=${commentId}`
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'Не вдалося видалити коментар');
+            }
+
+            const eventId = this.currentEventId;
+            if (eventId) {
+                await Promise.all([
+                    this.loadComments(eventId),
+                    this.loadMobileComments(eventId),
+                    this.loadStats(eventId)
+                ]);
+            } else {
+                button.closest('.comment, .mobile-comment')?.remove();
+            }
+
+            this.showNotification('Коментар видалено', 'success');
+        } catch (error) {
+            this.showNotification(error.message || 'Помилка видалення', 'error');
+        } finally {
+            this.deletingCommentIds.delete(commentId);
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = original;
+            }
+        }
+    }
+
     setupActionButtons() {
         const desktop = document.getElementById('eventActions');
         const mobile = document.getElementById('eventActionsMob');
@@ -1086,6 +1214,7 @@ class UniversalModalManager {
             }
 
             if (action === 'share') this.shareEventMobile();
+            if (action === 'calendar') this.downloadCalendarFile();
         };
 
         // вішаємо на ОБИДВІ панелі
@@ -1119,7 +1248,7 @@ class UniversalModalManager {
         const countElement = likeBtn?.querySelector('[data-likes-count]');
 
         try {
-            const res = await fetch('/functions/toggle_like.php', {
+            const res = await fetch('functions/toggle_like.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: `event_id=${this.currentEventId}`
@@ -1183,6 +1312,8 @@ class UniversalModalManager {
 
 
     async sendComment() {
+        if (this.isSendingComment) return;
+
         const input = document.getElementById('commentText');
         const text = input?.value.trim();
 
@@ -1195,6 +1326,7 @@ class UniversalModalManager {
         const originalText = btn?.innerHTML;
 
         try {
+            this.isSendingComment = true;
             if (btn) {
                 btn.innerHTML = '...';
                 btn.disabled = true;
@@ -1226,6 +1358,7 @@ class UniversalModalManager {
             console.error('Помилка відправки коментаря:', error);
             this.showNotification(error.message, 'error');
         } finally {
+            this.isSendingComment = false;
             if (btn) {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1288,6 +1421,19 @@ style.textContent = `
     .notification {
         animation: slideIn 0.3s ease;
     }
+
+    .comment-delete-btn {
+        margin-left: auto;
+        background: transparent;
+        border: 0;
+        color: #ff7a7a;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+    }
+
+    .comment-delete-btn:hover {
+        color: #ff3d3d;
+    }
 `;
 document.head.appendChild(style);
-

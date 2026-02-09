@@ -61,7 +61,7 @@ class EventsManager {
         const container = document.getElementById('profileEvents');
         if (!container) return;
 
-        fetch(`/ajax/profile_events.php?type=${type}`)
+        fetch(`ajax/profile_events.php?type=${type}`)
             .then(response => {
                 if (!response.ok) throw new Error('Network error');
                 return response.text();
@@ -99,15 +99,15 @@ class EventsManager {
         switch(type) {
             case 'my':
                 message = 'Ви ще не створили жодної події';
-                button = '<a href="/event_form.php" class="btn-create-first">Створити першу подію</a>';
+                button = '<a href="event_form.php" class="btn-create-first">Створити першу подію</a>';
                 break;
             case 'saved':
                 message = 'У вас немає збережених подій';
-                button = '<a href="/events.php" class="btn-create-first">Знайти події для збереження</a>';
+                button = '<a href="events.php" class="btn-create-first">Знайти події для збереження</a>';
                 break;
             case 'participating':
                 message = 'Ви ще не взяли участь у жодній події';
-                button = '<a href="/events.php" class="btn-create-first">Знайти події для участі</a>';
+                button = '<a href="events.php" class="btn-create-first">Знайти події для участі</a>';
                 break;
         }
 
@@ -471,7 +471,7 @@ document.addEventListener('click', (e) => {
 
     const eventId = btn.dataset.eventId;
 
-    fetch('/ajax/save_event.php', {
+    fetch('ajax/save_event.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event_id: eventId })

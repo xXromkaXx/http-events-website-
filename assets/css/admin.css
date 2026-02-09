@@ -1,0 +1,174 @@
+body {
+    background: #060b1a;
+    color: #e8eeff;
+}
+
+.admin-wrap {
+    max-width: 1120px;
+    margin: 28px auto 80px;
+    padding: 0 18px;
+    display: grid;
+    gap: 16px;
+}
+
+.admin-wrap h1 {
+    margin: 0;
+    color: #ffe07e;
+}
+
+.admin-flash {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.admin-flash.success {
+    background: rgba(90, 216, 166, 0.14);
+    border: 1px solid rgba(90, 216, 166, 0.45);
+}
+
+.admin-flash.error {
+    background: rgba(255, 95, 118, 0.14);
+    border: 1px solid rgba(255, 95, 118, 0.45);
+}
+
+.admin-card {
+    background: linear-gradient(145deg, rgba(13, 23, 47, 0.92), rgba(11, 18, 36, 0.94));
+    border: 1px solid rgba(118, 163, 255, 0.2);
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.admin-card h2 {
+    margin: 2px 0 10px;
+    font-size: 19px;
+}
+
+.admin-empty {
+    margin: 0;
+    color: rgba(232, 238, 255, 0.7);
+}
+
+.admin-list {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-item {
+    border: 1px solid rgba(123, 169, 255, 0.24);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: rgba(7, 13, 27, 0.7);
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.admin-item p {
+    margin: 7px 0 0;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.admin-actions.wide {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-actions form {
+    margin: 0;
+}
+
+.admin-card .admin-actions {
+    margin-top: 12px;
+}
+
+.admin-user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.admin-user-chip {
+    display: grid;
+    gap: 2px;
+    text-decoration: none;
+    color: #e8eeff;
+    border: 1px solid rgba(123, 169, 255, 0.26);
+    background: rgba(8, 14, 29, 0.76);
+    border-radius: 10px;
+    padding: 9px 10px;
+}
+
+.admin-user-chip strong {
+    font-size: 14px;
+}
+
+.admin-user-chip span,
+.admin-user-chip small {
+    color: rgba(232, 238, 255, 0.72);
+    font-size: 12px;
+}
+
+.admin-user-chip.active {
+    border-color: rgba(255, 215, 120, 0.75);
+    box-shadow: 0 0 0 1px rgba(255, 215, 120, 0.2) inset;
+}
+
+.admin-subtitle {
+    margin: 14px 0 8px;
+    color: #ffd67b;
+    font-size: 16px;
+}
+
+.admin-actions button,
+.admin-actions input[type="text"] {
+    border-radius: 9px;
+    border: 1px solid rgba(143, 184, 255, 0.3);
+    background: rgba(14, 25, 50, 0.9);
+    color: #e6edff;
+    padding: 8px 11px;
+    font-size: 13px;
+}
+
+.admin-actions button {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.admin-actions .ok {
+    background: rgba(86, 196, 142, 0.2);
+    border-color: rgba(86, 196, 142, 0.5);
+}
+
+.admin-actions .bad {
+    background: rgba(255, 95, 118, 0.2);
+    border-color: rgba(255, 95, 118, 0.48);
+}
+
+.reject-form {
+    display: flex;
+    gap: 8px;
+}
+
+.reason {
+    margin-top: 6px;
+    color: #ffc8d0;
+    font-size: 13px;
+}
+
+@media (max-width: 800px) {
+    .admin-item {
+        flex-direction: column;
+    }
+
+    .admin-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}

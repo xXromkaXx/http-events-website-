@@ -3,7 +3,7 @@
  * Створення нової події
  */
 
-function createEvent($userId, $title, $description, $category, $event_date, $event_time, $imagePath, $location) {
+function createEvent($userId, $title, $description, $category, $event_date, $event_time, $imagePath, $location, $moderationStatus = 'pending') {
     if (empty($event_date)) {
         throw new Exception("Будь ласка, вкажіть дату події!");
     }
@@ -13,8 +13,8 @@ function createEvent($userId, $title, $description, $category, $event_date, $eve
 
     $pdo = getPDO();
     $stmt = $pdo->prepare("
-        INSERT INTO events (user_id, title, description, category, event_date, event_time, image, location)
-        VALUES (:user_id, :title, :description, :category, :event_date, :event_time, :image, :location)
+        INSERT INTO events (user_id, title, description, category, event_date, event_time, image, location, moderation_status, rejection_reason, moderated_by, moderated_at)
+        VALUES (:user_id, :title, :description, :category, :event_date, :event_time, :image, :location, :moderation_status, NULL, NULL, NULL)
     ");
     return $stmt->execute([
         ':user_id' => $userId,
@@ -24,7 +24,8 @@ function createEvent($userId, $title, $description, $category, $event_date, $eve
         ':event_date' => $event_date,
         ':event_time' => $event_time ?: null,
         ':image' => $imagePath,
-        ':location' => $location
+        ':location' => $location,
+        ':moderation_status' => $moderationStatus
     ]);
 }
 
@@ -130,7 +131,8 @@ function updateEvent(
     string $eventDate,
     ?string $eventTime,
     ?string $image,
-    string $location
+    string $location,
+    string $moderationStatus = 'pending'
 ) {
     global $pdo;
 
@@ -143,7 +145,11 @@ function updateEvent(
             event_date = :event_date,
             event_time = :event_time,
             image = :image,
-            location = :location
+            location = :location,
+            moderation_status = :moderation_status,
+            rejection_reason = NULL,
+            moderated_by = NULL,
+            moderated_at = NULL
         WHERE id = :id AND user_id = :user_id
     ");
 
@@ -155,6 +161,7 @@ function updateEvent(
         'event_time' => $eventTime,
         'image' => $image,
         'location' => $location,
+        'moderation_status' => $moderationStatus,
         'id' => $eventId,
         'user_id' => $userId
     ]);

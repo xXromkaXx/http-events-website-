@@ -66,6 +66,29 @@ body {
     position: absolute;
 }
 
+.admin-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 18px;
+    z-index: 12000;
+    background: linear-gradient(135deg, #ffd86d, #ffb84c);
+    color: #1c2135;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+    border-radius: 999px;
+    padding: 11px 15px;
+    border: 1px solid rgba(255, 214, 125, 0.95);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.admin-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+}
+
 .zigzag-1 {
     width: 4px;
     height: 140%;

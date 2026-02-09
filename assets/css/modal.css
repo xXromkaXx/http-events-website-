@@ -136,6 +136,11 @@ body.modal-open {
     transform: scale(1.1);
 }
 
+.event-action[data-action="calendar"]:hover svg {
+    stroke: var(--accent);
+    filter: drop-shadow(0 0 6px rgba(253, 219, 0, 0.45));
+}
+
 .event-action:active {
     transform: scale(0.95);
 }
@@ -1706,4 +1711,115 @@ top: 4%;
     }
 }
 
+.event-author.is-link {
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
 
+.event-author.is-link:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 215, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Comments Premium UI */
+.comments-section .comments-list,
+.mobile-comments-modal .mobile-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 12px 12px;
+}
+
+.comments-section .comment,
+.mobile-comments-modal .mobile-comment {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background:
+        radial-gradient(120% 180% at 0% 0%, rgba(255, 220, 120, 0.09), transparent 55%),
+        linear-gradient(145deg, rgba(24, 36, 70, 0.9), rgba(15, 23, 44, 0.94));
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.32);
+    padding: 12px 14px;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.comments-section .comment:hover,
+.mobile-comments-modal .mobile-comment:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 215, 0, 0.45);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
+}
+
+.comments-section .comment::before,
+.mobile-comments-modal .mobile-comment::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255, 215, 0, .95), rgba(255, 215, 0, .05));
+}
+
+.comments-section .comment-header,
+.mobile-comments-modal .mobile-comment-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comments-section .comment-author,
+.mobile-comments-modal .mobile-comment-header strong {
+    color: #f5d86b;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+
+.comments-section .comment-time,
+.mobile-comments-modal .mobile-comment-header span {
+    color: rgba(255, 255, 255, .6);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.comments-section .comment p,
+.mobile-comments-modal .mobile-comment-text {
+    color: rgba(255, 255, 255, .95);
+    font-size: 15px;
+    line-height: 1.48;
+    margin: 0;
+    word-break: break-word;
+}
+
+.comments-section .comment-delete-btn,
+.mobile-comments-modal .comment-delete-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 120, 120, .5);
+    background: rgba(255, 100, 100, .12);
+    color: #ffc8c8;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .18s ease, transform .18s ease, border-color .18s ease;
+}
+
+.comments-section .comment-delete-btn:hover,
+.mobile-comments-modal .comment-delete-btn:hover {
+    background: rgba(255, 100, 100, .24);
+    border-color: rgba(255, 150, 150, .85);
+    transform: translateY(-1px);
+}
+
+.comments-section .comment-delete-btn:disabled,
+.mobile-comments-modal .comment-delete-btn:disabled {
+    opacity: .5;
+    cursor: default;
+    transform: none;
+}

@@ -14,7 +14,10 @@ $location = trim($_GET['location'] ?? '');
 $random = isset($_GET['random']);
 
 $userId = $_SESSION['user']['id'] ?? null;
+$userRole = $_SESSION['user']['role'] ?? 'user';
+$isAdmin = ($userRole === 'admin');
 $excludeMy = isset($_GET['exclude_my']) && $userId !== null;
+$isMyRequest = isset($_GET['my']) && $_GET['my'] == '1' && $userId;
 
 
 $sql = "SELECT 
@@ -33,9 +36,12 @@ if ($category !== 'Усі' && empty($search)) {
     $params[':category'] = $category;
 }
 
+if (!$isAdmin && !$isMyRequest) {
+    $sql .= " AND events.moderation_status = 'published'";
+}
 
 /* 🔥 МОЇ ПОДІЇ */
-if (isset($_GET['my']) && $_GET['my'] == '1' && $userId) {
+if ($isMyRequest) {
     $sql .= " AND events.user_id = :my_user_id";
     $params[':my_user_id'] = $userId;
 }
@@ -155,7 +161,7 @@ function formatEventForDisplay($event) {
     $event['formatted_time'] = formatEventTime($event['event_time']);
 
     // Створюємо короткий опис
-    $event['description_short'] = shortDescription($event['description']);
+    $event['short_description'] = shortDescription($event['description']);
 
     // Обробляємо зображення
     if (empty($event['image'])) {

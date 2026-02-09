@@ -1,4 +1,5 @@
 document.addEventListener('click', e => {
+    const baseUrl = window.BASE_URL || '';
 
     const card = e.target.closest('.event-card');
     if (!card) return;
@@ -19,7 +20,7 @@ document.addEventListener('click', e => {
         if (!qr || qr.dataset.generated) return;
 
         new QRCode(qr, {
-            text: `${location.origin}/#event-${card.dataset.id}`,
+            text: `${location.origin}${baseUrl}/#event-${card.dataset.id}`,
             width: 200,
             height: 200,
             useSVG: true

@@ -7,9 +7,9 @@ require_once 'init.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events YC</title>
-    <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/events.css">
-    <link rel="stylesheet" href="assets/css/modal.css">
+    <link rel="stylesheet" href="assets/css/main.css?v=<?= filemtime(__DIR__ . '/assets/css/main.css') ?>">
+    <link rel="stylesheet" href="assets/css/events.css?v=<?= filemtime(__DIR__ . '/assets/css/events.css') ?>">
+    <link rel="stylesheet" href="assets/css/modal.css?v=<?= filemtime(__DIR__ . '/assets/css/modal.css') ?>">
 </head>
 
 
@@ -132,9 +132,9 @@ include 'components/event_modal.php';
 include 'includes/footer.php';
 ?>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-<script src="assets/js/main.js"></script>
-<script src="assets/js/events.js"></script>
-<script src="assets/js/modal.js"></script>
+<script src="assets/js/main.js?v=<?= filemtime(__DIR__ . '/assets/js/main.js') ?>"></script>
+<script src="assets/js/events.js?v=<?= filemtime(__DIR__ . '/assets/js/events.js') ?>"></script>
+<script src="assets/js/modal.js?v=<?= filemtime(__DIR__ . '/assets/js/modal.js') ?>"></script>
 <script>
     window.isLoggedIn = <?= isset($_SESSION['user']) ? 'true' : 'false' ?>;
 </script>

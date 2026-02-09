@@ -122,6 +122,17 @@
                             </svg>
                         </button>
 
+                        <button class="event-action" data-action="calendar" title="Додати в календар">
+                            <svg viewBox="0 0 24 24" class="icon">
+                                <rect x="3" y="4" width="18" height="17" rx="2"/>
+                                <line x1="8" y1="2.5" x2="8" y2="6"/>
+                                <line x1="16" y1="2.5" x2="16" y2="6"/>
+                                <line x1="3" y1="9" x2="21" y2="9"/>
+                                <line x1="8" y1="13" x2="11" y2="13"/>
+                                <line x1="8" y1="16" x2="12.5" y2="16"/>
+                            </svg>
+                        </button>
+
                     </div>
 
                     <!-- Поле вводу -->
@@ -177,6 +188,17 @@
                     <circle cx="18" cy="19" r="3"/>
                     <path d="M8.5 13.5l7 4"/>
                     <path d="M15.5 6.5l-7 4"/>
+                </svg>
+            </button>
+
+            <button class="event-action" data-action="calendar" title="Додати в календар">
+                <svg viewBox="0 0 24 24" class="icon">
+                    <rect x="3" y="4" width="18" height="17" rx="2"/>
+                    <line x1="8" y1="2.5" x2="8" y2="6"/>
+                    <line x1="16" y1="2.5" x2="16" y2="6"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="8" y1="13" x2="11" y2="13"/>
+                    <line x1="8" y1="16" x2="12.5" y2="16"/>
                 </svg>
             </button>
 
